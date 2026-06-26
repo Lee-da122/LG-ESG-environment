@@ -871,6 +871,21 @@
       .home-logo   { display: none; }
       .logo-footer { display: none; }
     }
+
+    /* ── CO₂ 그래프 섹션 ── */
+    .co2-sliders { background: #f9fafb; border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; }
+    .co2-slider-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .co2-slider-row:last-child { margin-bottom: 0; }
+    .co2-slider-row label { font-size: 13px; color: #6b7280; min-width: 148px; }
+    .co2-slider-row input[type="range"] { flex: 1; margin-left: 12px; accent-color: var(--brand); }
+    .co2-summary { display: flex; gap: 8px; margin-bottom: 14px; }
+    .co2-stat { flex: 1; text-align: center; padding: 10px 6px; background: #f3f4f6; border-radius: 10px; }
+    .co2-stat-label { display: block; font-size: 11px; color: #9ca3af; margin-bottom: 4px; }
+    .co2-stat-value { font-size: 22px; font-weight: 700; color: #111827; }
+    .co2-stat-value.now  { color: #ef4444; }
+    .co2-stat-value.future { color: #16a34a; }
+    .co2-canvas-wrap { position: relative; height: 200px; }
+    .co2-note { font-size: 11px; color: #9ca3af; text-align: center; padding-top: 8px; }
   </style>
 </head>
 <body>
@@ -891,6 +906,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
   <script src="data.js"></script>
   <script src="config.js"></script>
   <script src="app.js"></script>

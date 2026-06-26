@@ -14,6 +14,10 @@ const history = [];
 
 let liveCenters = null;
 
+/* ── CO₂ 그래프 Chart.js 인스턴스 ── */
+
+let co2Chart = null;
+
 function navigate(screen) {
   history.push({ ...state });
   state.screen = screen;
@@ -289,6 +293,178 @@ function renderCenterList(matched) {
   `;
 }
 
+/* ── CO₂ 그래프: 헬퍼 & 렌더 ── */
+
+function calcCo2(productionKg, months, freqPerWeek, moreMonths) {
+  const WEEKS_PER_MONTH = 4.345;
+  const usesNow    = Math.max(1, Math.round(freqPerWeek * months * WEEKS_PER_MONTH));
+  const usesFuture = Math.max(1, Math.round(freqPerWeek * (months + moreMonths) * WEEKS_PER_MONTH));
+  const perNow     = Math.round((productionKg * 1000) / usesNow);
+  const perFuture  = Math.round((productionKg * 1000) / usesFuture);
+  return { usesNow, usesFuture, perNow, perFuture };
+}
+
+function renderCo2Graph() {
+  if (state.route !== 'pro' && state.route !== 'self') return '';
+  const itemData = ITEMS.find((i) => i.id === state.item);
+  if (!itemData || !itemData.co2 || !itemData.co2.productionKg) return '';
+
+  return `
+    <div class="content-section">
+      <h2 class="section-title">수리할수록 줄어드는 탄소 발자국</h2>
+      <div class="co2-sliders">
+        <div class="co2-slider-row">
+          <label>산 지 <strong id="co2-months-val">12</strong>개월</label>
+          <input type="range" id="co2-months" min="1" max="120" value="12" />
+        </div>
+        <div class="co2-slider-row">
+          <label>주당 <strong id="co2-freq-val">3</strong>회 사용</label>
+          <input type="range" id="co2-freq" min="1" max="14" value="3" />
+        </div>
+        <div class="co2-slider-row">
+          <label>앞으로 <strong id="co2-more-val">12</strong>개월 더 사용</label>
+          <input type="range" id="co2-more" min="1" max="60" value="12" />
+        </div>
+      </div>
+      <div class="co2-summary">
+        <div class="co2-stat">
+          <span class="co2-stat-label">지금까지 사용</span>
+          <span class="co2-stat-value" id="co2-uses-now">—</span>회
+        </div>
+        <div class="co2-stat">
+          <span class="co2-stat-label">지금 1회당</span>
+          <span class="co2-stat-value now" id="co2-per-now">—</span>g
+        </div>
+        <div class="co2-stat">
+          <span class="co2-stat-label">더 쓰면 1회당</span>
+          <span class="co2-stat-value future" id="co2-per-future">—</span>g
+        </div>
+      </div>
+      <div class="co2-canvas-wrap">
+        <canvas id="co2-chart"></canvas>
+      </div>
+      <p class="co2-note">※ 임시 추정치 · 출처 미확정 (KEITI 에코스퀘어 교체 예정)</p>
+    </div>
+  `;
+}
+
+function initCo2Chart() {
+  const canvas = document.getElementById('co2-chart');
+  if (!canvas || typeof Chart === 'undefined') return;
+
+  const itemData = ITEMS.find((i) => i.id === state.item);
+  const productionKg = itemData && itemData.co2 && itemData.co2.productionKg;
+  if (!productionKg) return;
+
+  if (co2Chart) { co2Chart.destroy(); co2Chart = null; }
+
+  function buildCurve(maxX) {
+    const pts = [];
+    const step = Math.max(1, Math.floor(maxX / 80));
+    for (let x = 1; x <= maxX; x += step) {
+      pts.push({ x, y: Math.round(productionKg * 1000 / x) });
+    }
+    return pts;
+  }
+
+  function updateChart() {
+    const months = parseInt(document.getElementById('co2-months').value);
+    const freq   = parseInt(document.getElementById('co2-freq').value);
+    const more   = parseInt(document.getElementById('co2-more').value);
+
+    document.getElementById('co2-months-val').textContent = months;
+    document.getElementById('co2-freq-val').textContent   = freq;
+    document.getElementById('co2-more-val').textContent   = more;
+
+    const { usesNow, usesFuture, perNow, perFuture } = calcCo2(productionKg, months, freq, more);
+    document.getElementById('co2-uses-now').textContent   = usesNow;
+    document.getElementById('co2-per-now').textContent    = perNow;
+    document.getElementById('co2-per-future').textContent = perFuture;
+
+    const maxX = Math.ceil(usesFuture * 1.4);
+    co2Chart.data.datasets[0].data = buildCurve(maxX);
+    co2Chart.data.datasets[1].data = [{ x: usesNow, y: perNow }];
+    co2Chart.data.datasets[2].data = [{ x: usesFuture, y: perFuture }];
+    co2Chart.options.scales.x.max = maxX;
+    co2Chart.update();
+  }
+
+  const initMonths = 12, initFreq = 3, initMore = 12;
+  const { usesNow, usesFuture, perNow, perFuture } = calcCo2(productionKg, initMonths, initFreq, initMore);
+  const maxX = Math.ceil(usesFuture * 1.4);
+
+  document.getElementById('co2-uses-now').textContent   = usesNow;
+  document.getElementById('co2-per-now').textContent    = perNow;
+  document.getElementById('co2-per-future').textContent = perFuture;
+
+  co2Chart = new Chart(canvas, {
+    type: 'scatter',
+    data: {
+      datasets: [
+        {
+          label: 'CO₂ 곡선',
+          data: buildCurve(maxX),
+          borderColor: '#d1d5db',
+          backgroundColor: 'transparent',
+          showLine: true,
+          pointRadius: 0,
+          tension: 0.3,
+          order: 3,
+        },
+        {
+          label: '지금',
+          data: [{ x: usesNow, y: perNow }],
+          backgroundColor: '#ef4444',
+          borderColor: '#ef4444',
+          pointRadius: 7,
+          pointHoverRadius: 9,
+          order: 1,
+        },
+        {
+          label: '더 쓰면',
+          data: [{ x: usesFuture, y: perFuture }],
+          backgroundColor: '#16a34a',
+          borderColor: '#16a34a',
+          pointRadius: 7,
+          pointHoverRadius: 9,
+          order: 2,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { font: { size: 12 } } },
+        tooltip: {
+          callbacks: {
+            label: (ctx) =>
+              `${ctx.dataset.label}: ${ctx.parsed.y}g CO₂ (${ctx.parsed.x}회 사용)`,
+          },
+        },
+      },
+      scales: {
+        x: {
+          type: 'linear',
+          min: 0,
+          max: maxX,
+          title: { display: true, text: '누적 사용 횟수', font: { size: 11 } },
+        },
+        y: {
+          type: 'linear',
+          min: 0,
+          title: { display: true, text: '1회당 CO₂ (g)', font: { size: 11 } },
+        },
+      },
+    },
+  });
+
+  ['co2-months', 'co2-freq', 'co2-more'].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', updateChart);
+  });
+}
+
 /* ── 결과: self / pro / reuse ── */
 
 function renderSelf() {
@@ -332,7 +508,8 @@ function renderSelf() {
     `<div class="content-section">
       <h2 class="section-title">수리 방법</h2>
       ${guideContent}
-    </div>`
+    </div>
+    ${renderCo2Graph()}`
   );
 }
 
@@ -347,7 +524,8 @@ function renderPro() {
     <div class="content-section">
       <h2 class="section-title">근처 거점</h2>
       ${renderCenterList(getMatchedCenters())}
-    </div>`
+    </div>
+    ${renderCo2Graph()}`
   );
 }
 
@@ -608,8 +786,15 @@ function render() {
     default:            app.innerHTML = renderHome();
   }
 
-  // 지도 화면이 렌더됐으면 Leaflet 초기화 (레이아웃 계산 후 실행)
+  // result 화면 벗어나면 이전 차트 소멸
+  if (state.screen !== 'result' && co2Chart) {
+    co2Chart.destroy();
+    co2Chart = null;
+  }
+
+  // 지도·차트 초기화 (레이아웃 계산 후 실행)
   requestAnimationFrame(initMapIfPresent);
+  requestAnimationFrame(initCo2Chart);
 }
 
 /* ── CSV 거점 로더 ── */

@@ -2,6 +2,8 @@ const ITEMS = [
   {
     id: 'umbrella',
     label: '우산',
+    // ⚠️ TEMP: 임시 추정값(출처 미확정). KEITI 에코스퀘어로 교체 예정.
+    co2: { productionKg: 3.0, source: null },
     conditions: [
       { label: '살대 휨',              route: 'pro',
         conditions: ['살대가 휘었어요', '우산살이 휘었어요', '살이 구부러졌어요', '프레임이 휘었어요'] },
@@ -18,6 +20,8 @@ const ITEMS = [
   {
     id: 'clothing',
     label: '의류·가방',
+    // ⚠️ TEMP: 임시 추정값(출처 미확정). KEITI 에코스퀘어로 교체 예정.
+    co2: { productionKg: 8.0, source: null },
     conditions: [
       { label: '단추 떨어짐',       route: 'self' },
       { label: '솔기 터짐',         route: 'self' },
