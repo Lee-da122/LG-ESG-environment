@@ -1,0 +1,16 @@
+# 환경변수·비밀키 (절대 커밋하지 말 것)
+.env
+.env.*
+*.local
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 에디터
+.vscode/
+.idea/
+
+# Node (서버리스 함수 의존성 설치 시 대비)
+node_modules/

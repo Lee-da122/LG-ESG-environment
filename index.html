@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Re:born</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    :root { --brand: #D20565; --brand-dark: #B0044F; }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Malgun Gothic', sans-serif;
+      background: #f9fafb;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #app {
+      width: 100%;
+      max-width: 480px;
+      background: #ffffff;
+      min-height: 100vh;   /* 모바일 기본 */
+    }
+
+    /* ── 화면 레이아웃 ── */
+
+    .screen {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      padding: 24px 24px 36px;
+    }
+
+    .screen-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 28px;
+    }
+
+    .spacer { flex: 1; }
+
+    /* ── 카드 ── */
+
+    .card-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex: 1;
+    }
+
+    .card {
+      width: 100%;
+      padding: 20px 16px;
+      border: 2px solid #e5e7eb;
+      border-radius: 16px;
+      background: #ffffff;
+      font-size: 16px;
+      font-weight: 500;
+      color: #1f2937;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.15s, background-color 0.15s;
+    }
+
+    .card:hover  { border-color: #f9a8d4; background: #fdf2f8; }
+    .card:active { border-color: var(--brand); background: #fce7f3; }
+
+    /* ── 버튼 ── */
+
+    .btn-primary {
+      width: 100%;
+      padding: 15px;
+      margin-top: 24px;
+      background: var(--brand);
+      color: #ffffff;
+      border: none;
+      border-radius: 14px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.15s, transform 0.1s;
+    }
+
+    .btn-primary:hover  { background: var(--brand-dark); }
+    .btn-primary:active { background: var(--brand-dark); transform: scale(0.98); }
+
+    .btn-secondary {
+      width: 100%;
+      padding: 12px;
+      margin-top: 12px;
+      background: transparent;
+      color: var(--brand);
+      border: 2px solid var(--brand);
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.15s;
+    }
+
+    .btn-secondary:hover  { background: #fdf2f8; }
+    .btn-secondary:active { background: #fce7f3; }
+
+    /* ── 안내 텍스트 ── */
+
+    .notice {
+      font-size: 15px;
+      color: #6b7280;
+      margin-bottom: 24px;
+      flex: 1;
+    }
+
+    /* ── 결과: 헤더 ── */
+
+    .result-header {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .route-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      width: fit-content;
+    }
+
+    .badge-self    { background: #eff6ff; color: #1d4ed8; }
+    .badge-pro     { background: #fffbeb; color: #b45309; }
+    .badge-reuse   { background: #f5f3ff; color: #6d28d9; }
+    .badge-recycle { background: #f1f5f9; color: #475569; }
+
+    .verdict {
+      font-size: 18px;
+      font-weight: 700;
+      color: #111827;
+      line-height: 1.4;
+    }
+
+    /* ── 결과: 바디 ── */
+
+    .result-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* ── 빈 상태 ── */
+
+    .empty-state {
+      font-size: 13px;
+      color: #9ca3af;
+      padding: 20px 0;
+      text-align: center;
+    }
+
+    /* ── 결과: 푸터 ── */
+
+    .footer-note {
+      margin-top: 20px;
+      font-size: 11px;
+      color: #9ca3af;
+      line-height: 1.6;
+    }
+
+    /* ── 안내 박스 ── */
+
+    .info-box {
+      padding: 16px;
+      border-radius: 14px;
+      border: 1.5px solid;
+    }
+
+    .info-box-title {
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .info-box-text {
+      font-size: 13px;
+      color: #374151;
+      line-height: 1.6;
+    }
+
+    .warn-box                 { background: #f0fdf4; border-color: #bbf7d0; }
+    .warn-box .info-box-title { color: #15803d; }
+
+    .safety-box                 { background: #fff7ed; border-color: #fed7aa; }
+    .safety-box .info-box-title { color: #c2410c; }
+
+    /* ── 섹션 ── */
+
+    .content-section {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .section-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #9ca3af;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+    }
+
+    /* ── 단계 목록 ── */
+
+    .step-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      list-style: none;
+    }
+
+    .step-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .step-num {
+      flex-shrink: 0;
+      width: 22px;
+      height: 22px;
+      background: var(--brand);
+      color: #fff;
+      border-radius: 50%;
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 2px;
+    }
+
+    .step-text {
+      font-size: 14px;
+      color: #374151;
+      line-height: 1.6;
+    }
+
+    /* ── 재질별 배출 테이블 ── */
+
+    .mat-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .mat-table th {
+      background: #f9fafb;
+      padding: 8px 12px;
+      text-align: left;
+      font-weight: 600;
+      color: #6b7280;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .mat-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #f3f4f6;
+      vertical-align: top;
+    }
+
+    .mat-table tr:last-child td { border-bottom: none; }
+
+    .mat-part { font-weight: 500; color: #1f2937; }
+    .mat-bin  { color: #6b7280; }
+
+    /* ── 예외 목록 ── */
+
+    .exception-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .exception-list li {
+      font-size: 13px;
+      color: #374151;
+      line-height: 1.6;
+      padding-left: 14px;
+      position: relative;
+    }
+
+    .exception-list li::before {
+      content: '·';
+      position: absolute;
+      left: 0;
+      color: #9ca3af;
+      font-weight: 700;
+    }
+
+    /* ── 수리 가이드: YouTube ── */
+
+    .yt-wrap {
+      position: relative;
+      padding-top: 56.25%;   /* 16:9 */
+      border-radius: 12px;
+      overflow: hidden;
+      background: #f3f4f6;
+    }
+
+    .yt-wrap iframe {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      border: 0;
+    }
+
+    /* ── 수리 가이드: 카드뉴스 ── */
+
+    .cardnews-scroll {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin: 0 -24px;
+      scrollbar-width: none;
+    }
+
+    .cardnews-scroll::-webkit-scrollbar { display: none; }
+
+    .cardnews-track {
+      display: flex;
+      gap: 10px;
+      padding: 0 24px;
+      width: max-content;
+    }
+
+    .cardnews-img {
+      width: 260px;
+      height: auto;
+      border-radius: 12px;
+      flex-shrink: 0;
+      object-fit: cover;
+      display: block;
+      background: #f3f4f6;
+    }
+
+    /* ── 주의사항 목록 ── */
+
+    .caution-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 12px 14px;
+      background: #fefce8;
+      border: 1.5px solid #fef08a;
+      border-radius: 10px;
+      margin-top: 8px;
+    }
+
+    .caution-list li {
+      font-size: 13px;
+      color: #713f12;
+      line-height: 1.5;
+      padding-left: 14px;
+      position: relative;
+    }
+
+    .caution-list li::before {
+      content: '!';
+      position: absolute;
+      left: 0;
+      font-weight: 700;
+      color: #ca8a04;
+    }
+
+    /* ── 거점 리스트 ── */
+
+    .center-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .center-item {
+      padding: 14px;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .center-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .center-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .center-type-badge {
+      font-size: 11px;
+      font-weight: 600;
+      color: #6b7280;
+      background: #f3f4f6;
+      padding: 2px 8px;
+      border-radius: 999px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .center-addr   { font-size: 12px; color: #6b7280; }
+    .center-loc    { font-size: 12px; color: #9ca3af; }   /* 상세 위치 */
+    .center-detail { font-size: 12px; color: #6b7280; }
+    .center-note   { font-size: 11px; color: #9ca3af; }
+
+    /* ── 지도 ── */
+
+    .center-map {
+      width: 100%;
+      height: 220px;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 4px;
+      background: #f3f4f6;
+      position: relative;
+      z-index: 0;
+    }
+
+    /* Leaflet 팝업 z-index 보정 (overflow:hidden 카드 안) */
+    .leaflet-pane,
+    .leaflet-top,
+    .leaflet-bottom { z-index: 1; }
+
+    /* ── 의류 폐기 화면 ── */
+
+    .disposal-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .disposal-list li {
+      font-size: 13px;
+      color: #374151;
+      line-height: 1.5;
+      padding-left: 14px;
+      position: relative;
+    }
+
+    .disposal-list li::before {
+      content: '·';
+      position: absolute;
+      left: 0;
+      color: #9ca3af;
+      font-weight: 700;
+    }
+
+    .disposal-caution {
+      font-size: 12px;
+      color: #6b7280;
+      margin-top: 2px;
+    }
+
+    .donotput-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .donotput-list li {
+      font-size: 13px;
+      color: #92400e;
+      line-height: 1.5;
+      padding-left: 16px;
+      position: relative;
+    }
+
+    .donotput-list li::before {
+      content: '✕';
+      position: absolute;
+      left: 0;
+      font-size: 10px;
+      font-weight: 700;
+      color: #c2410c;
+      top: 3px;
+    }
+
+    /* ── 세부 화면 ── */
+
+    .detail-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 20px;
+    }
+
+    /* ── 다음 버튼 (세부 화면 내 순서 이동) ── */
+
+    .btn-next {
+      width: 100%;
+      padding: 13px 16px;
+      margin-top: 4px;
+      background: #f9fafb;
+      color: #374151;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: right;
+      transition: background-color 0.15s, border-color 0.15s;
+    }
+
+    .btn-next:hover  { background: #f3f4f6; border-color: #d1d5db; }
+    .btn-next:active { background: #e5e7eb; }
+
+    /* ── 허브: 메뉴 카드 목록 ── */
+
+    .menu-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .menu-card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px;
+      background: #fff;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 14px;
+      text-align: left;
+      cursor: pointer;
+      width: 100%;
+      transition: border-color 0.15s, background-color 0.15s;
+    }
+
+    .menu-card:hover  { border-color: #f9a8d4; background: #fdf2f8; }
+    .menu-card:active { border-color: var(--brand); background: #fce7f3; }
+
+    .menu-icon {
+      font-size: 20px;
+      flex-shrink: 0;
+      width: 30px;
+      text-align: center;
+    }
+
+    .menu-text {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .menu-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .menu-desc {
+      font-size: 12px;
+      color: #9ca3af;
+    }
+
+    .menu-arrow {
+      font-size: 20px;
+      color: #d1d5db;
+      flex-shrink: 0;
+    }
+
+    /* ── 자율 진단 입력 ── */
+
+    .classify-section {
+      margin-bottom: 4px;
+    }
+
+    .classify-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 8px;
+    }
+
+    .classify-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .classify-input {
+      flex: 1;
+      padding: 11px 14px;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 12px;
+      font-size: 14px;
+      color: #111827;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.15s;
+      min-width: 0;
+    }
+
+    .classify-input:focus { border-color: var(--brand); }
+
+    .classify-btn {
+      padding: 11px 16px;
+      background: var(--brand);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: background-color 0.15s;
+    }
+
+    .classify-btn:hover    { background: var(--brand-dark); }
+    .classify-btn:active   { background: var(--brand-dark); }
+    .classify-btn:disabled { background: #9ca3af; cursor: not-allowed; }
+
+    .classify-status {
+      font-size: 12px;
+      color: #6b7280;
+      margin-top: 6px;
+      min-height: 18px;
+      line-height: 1.5;
+    }
+
+    /* ── 구분선 ── */
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 16px 0 4px;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #e5e7eb;
+    }
+
+    .divider span {
+      font-size: 12px;
+      color: #9ca3af;
+      white-space: nowrap;
+    }
+
+    /* ── 뒤로 버튼 ── */
+
+    .btn-back {
+      display: inline-flex;
+      align-items: center;
+      background: transparent;
+      border: none;
+      color: #6b7280;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      padding: 0;
+      margin-bottom: 16px;
+      align-self: flex-start;
+    }
+
+    .btn-back:hover  { color: #374151; }
+    .btn-back:active { color: #111827; }
+
+    /* ── 로고 ── */
+
+    .logo-lockup {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* ESG 아카데미 로고 — 더 크게 */
+    .logo-lockup img:first-of-type {
+      height: 32px;
+      width: auto;
+      max-width: 120px;
+      object-fit: contain;
+      display: block;
+      flex-shrink: 0;
+    }
+
+    /* LG전자 로고 */
+    .logo-lockup img:last-of-type {
+      height: 22px;
+      width: auto;
+      max-width: 80px;
+      object-fit: contain;
+      display: block;
+      flex-shrink: 0;
+    }
+
+    .logo-sep {
+      width: 1px;
+      height: 20px;
+      background: #d1d5db;
+      flex-shrink: 0;
+    }
+
+    /* 홈 화면 우상단 로고 */
+    .home-logo {
+      align-self: flex-end;
+      opacity: 0.75;
+    }
+
+    /* 나머지 화면 하단 푸터 로고 */
+    .logo-footer {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 28px;
+      padding-top: 18px;
+      border-top: 1px solid #f3f4f6;
+    }
+
+    .logo-footer .logo-lockup { opacity: 0.50; }
+
+    /* ── 홈 화면 ── */
+
+    .home-screen {
+      justify-content: space-between;
+      padding-top: 48px;    /* 홈은 뒤로 버튼 없으므로 기존 여백 유지 */
+    }
+
+    .home-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .home-slogan {
+      font-size: 28px;
+      font-weight: 800;
+      color: #111827;
+      line-height: 1.3;
+    }
+
+    .home-desc {
+      font-size: 14px;
+      color: #6b7280;
+      line-height: 1.7;
+    }
+
+    /* ════════════════════════════════════════
+       전역 레이아웃  (헤더 · 메인 · 푸터)
+       ════════════════════════════════════════ */
+
+    /* ── 상단 헤더 ── */
+
+    .g-header {
+      width: 100%;
+      background: #fff;
+      border-bottom: 1px solid #f0e8ed;
+      flex-shrink: 0;
+    }
+
+    .g-header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 12px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .g-wordmark {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--brand);
+      letter-spacing: -0.03em;
+      flex-shrink: 0;
+      user-select: none;
+    }
+
+    /* 헤더 로고 — 기본보다 작게 */
+    .g-header .logo-lockup img:first-of-type { height: 22px; }
+    .g-header .logo-lockup img:last-of-type  { height: 16px; }
+    .g-header .logo-sep                       { height: 13px; }
+
+    /* ── 가운데 콘텐츠 영역 ── */
+
+    .g-main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    /* ── 하단 푸터 ── */
+
+    .g-footer {
+      width: 100%;
+      background: #fff;
+      border-top: 1px solid #f5f0f3;
+      padding: 14px 24px;
+      display: flex;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .g-footer .logo-lockup { opacity: 0.25; }
+    .g-footer .logo-lockup img:first-of-type { height: 20px; }
+    .g-footer .logo-lockup img:last-of-type  { height: 14px; }
+    .g-footer .logo-sep                       { height: 12px; }
+
+    /* ════════════════════════════════════════
+       반응형
+       ════════════════════════════════════════ */
+
+    /* 모바일 (<600px) — 풀스크린, 헤더·푸터 숨김 */
+    @media (max-width: 599px) {
+      .g-header, .g-footer { display: none; }
+      .g-main              { display: block; }
+
+      #app {
+        max-width: 100%;
+        min-height: 100vh;
+        border-radius: 0;
+        box-shadow: none;
+      }
+    }
+
+    /* 데스크톱 (≥600px) — 중앙 카드 + 배경 */
+    @media (min-width: 600px) {
+      .g-main {
+        background: linear-gradient(150deg, #fdf4f8 0%, #f9fafb 55%, #fceef6 100%);
+        padding: 40px 24px 56px;
+        align-items: flex-start;
+      }
+
+      #app {
+        min-height: 0;
+        border-radius: 20px;
+        box-shadow: 0 8px 40px rgba(210, 5, 101, 0.10),
+                    0 2px 8px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+      }
+
+      /* 화면 내부에서 100vh 강제를 해제 — 카드가 콘텐츠 높이에 맞춤 */
+      .screen     { min-height: 0; }
+      .home-screen { min-height: 540px; }   /* space-between 레이아웃 유지 */
+
+      /* 데스크톱에선 전역 헤더·푸터가 로고를 담으므로 화면 내부 로고 숨김 */
+      .home-logo   { display: none; }
+      .logo-footer { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="g-header">
+    <div class="g-header-inner">
+      <span class="g-wordmark">Re:born</span>
+      <div id="g-header-logos"></div>
+    </div>
+  </header>
+
+  <main class="g-main">
+    <div id="app"></div>
+  </main>
+
+  <footer class="g-footer">
+    <div id="g-footer-logos"></div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="data.js"></script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
