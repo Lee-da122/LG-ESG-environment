@@ -116,12 +116,15 @@ export async function onRequestPost(context) {
       }
 
       try {
+        const t0 = Date.now();
+        console.log('[classify] gemini 호출 시작', t0);
         geminiRes = await fetch(GEMINI_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
           body: JSON.stringify(requestBody),
           signal: ac.signal,
         });
+        console.log('[classify] gemini 응답 수신', Date.now(), '소요(ms):', Date.now() - t0);
       } catch {
         if (ac.signal.aborted) break;
         geminiRes = null;
