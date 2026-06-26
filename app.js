@@ -358,10 +358,21 @@ function initCo2Chart() {
 
   if (co2Chart) { co2Chart.destroy(); co2Chart = null; }
 
-  function buildCurve(maxX) {
+  const AXIS_COLOR = '#52514e';
+  const AXIS_STYLE = { color: AXIS_COLOR, font: { size: 11, weight: '500' } };
+
+  function axisRange(usesNow, usesFuture, perNow) {
+    return {
+      xMin: Math.floor(usesNow * 0.4),
+      xMax: Math.ceil(usesFuture * 1.25),
+      yMax: Math.ceil(perNow * 1.15),
+    };
+  }
+
+  function buildCurve(xMin, xMax) {
     const pts = [];
-    const step = Math.max(1, Math.floor(maxX / 80));
-    for (let x = 1; x <= maxX; x += step) {
+    const step = Math.max(1, Math.floor((xMax - xMin) / 80));
+    for (let x = xMin; x <= xMax; x += step) {
       pts.push({ x, y: Math.round(productionKg * 1000 / x) });
     }
     return pts;
@@ -381,17 +392,19 @@ function initCo2Chart() {
     document.getElementById('co2-per-now').textContent    = perNow;
     document.getElementById('co2-per-future').textContent = perFuture;
 
-    const maxX = Math.ceil(usesFuture * 1.4);
-    co2Chart.data.datasets[0].data = buildCurve(maxX);
+    const { xMin, xMax, yMax } = axisRange(usesNow, usesFuture, perNow);
+    co2Chart.data.datasets[0].data = buildCurve(xMin, xMax);
     co2Chart.data.datasets[1].data = [{ x: usesNow, y: perNow }];
     co2Chart.data.datasets[2].data = [{ x: usesFuture, y: perFuture }];
-    co2Chart.options.scales.x.max = maxX;
+    co2Chart.options.scales.x.min = xMin;
+    co2Chart.options.scales.x.max = xMax;
+    co2Chart.options.scales.y.max = yMax;
     co2Chart.update();
   }
 
   const initMonths = 12, initFreq = 3, initMore = 12;
   const { usesNow, usesFuture, perNow, perFuture } = calcCo2(productionKg, initMonths, initFreq, initMore);
-  const maxX = Math.ceil(usesFuture * 1.4);
+  const { xMin, xMax, yMax } = axisRange(usesNow, usesFuture, perNow);
 
   document.getElementById('co2-uses-now').textContent   = usesNow;
   document.getElementById('co2-per-now').textContent    = perNow;
@@ -403,8 +416,8 @@ function initCo2Chart() {
       datasets: [
         {
           label: 'CO₂ 곡선',
-          data: buildCurve(maxX),
-          borderColor: '#d1d5db',
+          data: buildCurve(xMin, xMax),
+          borderColor: '#9ca3af',
           backgroundColor: 'transparent',
           showLine: true,
           pointRadius: 0,
@@ -446,14 +459,21 @@ function initCo2Chart() {
       scales: {
         x: {
           type: 'linear',
-          min: 0,
-          max: maxX,
-          title: { display: true, text: '누적 사용 횟수', font: { size: 11 } },
+          min: xMin,
+          max: xMax,
+          border: { color: AXIS_COLOR, width: 1.5 },
+          ticks: AXIS_STYLE,
+          title: { display: true, text: '누적 사용 횟수', ...AXIS_STYLE },
+          grid: { color: '#e5e7eb' },
         },
         y: {
           type: 'linear',
           min: 0,
-          title: { display: true, text: '1회당 CO₂ (g)', font: { size: 11 } },
+          max: yMax,
+          border: { color: AXIS_COLOR, width: 1.5 },
+          ticks: AXIS_STYLE,
+          title: { display: true, text: '1회당 CO₂ (g)', ...AXIS_STYLE },
+          grid: { color: '#e5e7eb' },
         },
       },
     },
