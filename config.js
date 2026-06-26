@@ -22,11 +22,13 @@ async function classifyText(text) {
   if (!classifyEndpoint || !text || !text.trim()) return null;
 
   // data.js의 ITEMS를 그대로 전달해 서버에서 분류 기준으로 사용하게 함
-  const states = (typeof ITEMS !== 'undefined' ? ITEMS : []).map((item) => ({
-    item:       item.id,
-    label:      item.label,
-    conditions: item.conditions.map((c) => c.label),
-  }));
+  const states = (typeof ITEMS !== 'undefined' ? ITEMS : []).flatMap((item) =>
+    item.conditions.map((c) => ({
+      item:       item.id,
+      label:      c.label,
+      conditions: c.conditions || [],
+    }))
+  );
 
   try {
     const res = await fetch(classifyEndpoint, {
