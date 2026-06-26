@@ -14,7 +14,7 @@ const GEMINI_URL =
 const MAX_TEXT_LEN     = 500;
 const MAX_STATES       = 20;    // 상태 항목 최대 개수 (남용 방지)
 const RETRY_DELAYS_MS  = [500, 1000, 2000]; // 최대 3회 시도 (초기 + 2회 재시도)
-const TOTAL_TIMEOUT_MS = 9_000;             // 전체 작업 상한
+const TOTAL_TIMEOUT_MS = 25_000;            // 전체 작업 상한 (진단용 임시 상향)
 
 // AbortSignal을 인식하는 sleep
 const sleep = (ms, signal) =>
@@ -76,7 +76,7 @@ module.exports = async function handler(req, res) {
   // states 목록 문자열 (systemInstruction에 주입)
   const stateList = states
     .slice(0, MAX_STATES)
-    .map((s) => `- ${s.item}(${s.label}): ${s.conditions.slice(0, 30).join(', ')}`)
+    .map((s) => `- ${s.item}(${s.label}): ${(s.conditions || []).slice(0, 30).join(', ')}`)
     .join('\n');
 
   // systemInstruction: 역할·출력 형식·제약을 고정. 사용자 입력과 섞지 않음.
@@ -128,7 +128,8 @@ module.exports = async function handler(req, res) {
           signal: ac.signal,
         });
         console.log('[classify] gemini 응답 수신', Date.now(), '소요(ms):', Date.now() - t0);
-      } catch {
+      } catch (e) {
+        console.error('[classify] fetch 실패:', e.name, e.message, 'aborted:', ac.signal.aborted);
         if (ac.signal.aborted) break; // 타임아웃 → 루프 종료
         geminiRes = null;
         continue;                     // 네트워크 오류 → 재시도
