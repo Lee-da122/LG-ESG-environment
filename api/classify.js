@@ -99,7 +99,10 @@ module.exports = async function handler(req, res) {
   const requestBody = {
     systemInstruction,
     contents: [{ role: 'user', parts: [{ text: text.trim() }] }],
-    generationConfig: { responseMimeType: 'application/json' },
+    generationConfig: {
+      responseMimeType: 'application/json',
+      thinkingConfig: { thinkingLevel: 'low' },
+    },
   };
 
   // ── 재시도 루프 (전체 9초 타임아웃) ──────────────────────────
