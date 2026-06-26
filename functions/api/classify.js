@@ -7,7 +7,7 @@
  */
 
 const GEMINI_URL =
-  'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
+  'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent';
 
 const MAX_TEXT_LEN     = 500;
 const MAX_STATES       = 20;
