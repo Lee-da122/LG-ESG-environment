@@ -85,6 +85,7 @@ function renderHome() {
         <p class="home-desc">Re:born은 우산·의류의 상태를 진단하고<br>수리·재사용·재활용 경로를 안내합니다.</p>
       </div>
       <button class="btn-primary" onclick="navigate('itemSelect')">진단 시작</button>
+      <button class="btn-secondary" onclick="location.href='circular.html'">순환경제 알아보기</button>
     </div>
   `;
 }
