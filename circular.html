@@ -98,6 +98,78 @@
 
     .ce-panel.hidden { display: none; }
 
+    /* ── 탭 1 콘텐츠 ── */
+
+    #tab-what {
+      text-align: left;
+      color: #374151;
+      padding-top: 0;
+    }
+
+    .ce-body {
+      font-size: 14px;
+      color: #374151;
+      line-height: 1.75;
+      margin-bottom: 20px;
+    }
+
+    .ce-sub {
+      font-size: 11px;
+      font-weight: 700;
+      color: #9ca3af;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 10px;
+    }
+
+    .ce-principles {
+      counter-reset: ce-item;
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .ce-principles li {
+      counter-increment: ce-item;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 14px;
+      color: #374151;
+      line-height: 1.6;
+    }
+
+    .ce-principles li::before {
+      content: counter(ce-item);
+      flex-shrink: 0;
+      width: 22px;
+      height: 22px;
+      background: var(--brand);
+      color: #fff;
+      border-radius: 50%;
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 2px;
+    }
+
+    .ce-source {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-top: 20px;
+      line-height: 1.6;
+    }
+
+    .ce-source a {
+      color: #9ca3af;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
     /* ── 로고 ── */
 
     .logo-lockup {
@@ -237,7 +309,85 @@
           <button class="ce-tab"        role="tab" onclick="switchTab('cases')">다른 기업 사례</button>
         </div>
 
-        <div id="tab-what"  class="ce-panel">준비 중</div>
+        <div id="tab-what" class="ce-panel">
+          <p class="ce-body">자원을 채취해 만들고 쓰고 버리는 기존의 '선형경제(Take–Make–Dispose)'와 달리,
+순환경제는 제품과 자원을 최대한 오래 순환시켜 폐기물을 줄이는 경제 모델입니다.</p>
+
+          <h2 class="ce-sub">세 가지 원칙</h2>
+          <ol class="ce-principles">
+            <li>폐기물과 오염을 설계 단계에서 줄인다</li>
+            <li>제품과 자원을 계속 순환시킨다</li>
+            <li>자연 시스템을 회복시킨다</li>
+          </ol>
+
+          <p class="ce-body">수리해서 더 쓰고, 다시 쓰고, 재활용하는 것 — 이 실천들이 자원의 고리를 잇습니다. RE:born은 당신의 우산과 옷이 그 고리 안에 머물도록 돕습니다.</p>
+
+          <div style="padding:1rem 0;">
+            <div style="display:grid; grid-template-columns:1.5fr 1fr; gap:24px;">
+              <div style="text-align:center; font-size:15px; font-weight:500; color:#D20565;">순환경제</div>
+              <div style="text-align:center; font-size:15px; font-weight:500; color:#52514e;">선형경제</div>
+              <div style="display:flex; align-items:center; justify-content:center;">
+                <svg width="100%" viewBox="0 0 380 380" role="img" aria-label="다섯 단계 순환 고리">
+                  <title>순환경제 고리</title>
+                  <desc>자원, 생산, 사용, 수리·재사용, 재활용이 원을 이루며 순환합니다.</desc>
+                  <circle cx="190" cy="190" r="120" fill="none" stroke="#D20565" stroke-width="1.5" stroke-dasharray="3 6" opacity="0.45"/>
+                </svg>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:10px; justify-content:center;">
+                <div style="background:#f3f4f2; border-radius:8px; padding:12px 14px; font-size:14px; text-align:center;">채취</div>
+                <div style="text-align:center; color:#898781; line-height:0.5;">↓</div>
+                <div style="background:#f3f4f2; border-radius:8px; padding:12px 14px; font-size:14px; text-align:center;">생산 · 사용</div>
+                <div style="text-align:center; color:#898781; line-height:0.5;">↓</div>
+                <div style="background:#fcebeb; border-radius:8px; padding:12px 14px; font-size:14px; text-align:center; color:#a32d2d;">폐기 — 여기서 끝</div>
+              </div>
+            </div>
+            <div style="border:1.5px solid #D20565; border-radius:8px; padding:12px 16px; margin-top:18px; text-align:center;">
+              <span style="font-size:14px; color:#D20565;">RE:born이 돕는 건 고리의 '수리·재사용·재활용' 단계</span>
+            </div>
+          </div>
+          <script>
+          (function(){
+            var svg = document.querySelector('svg[aria-label="다섯 단계 순환 고리"]');
+            if(!svg) return;
+            var ns='http://www.w3.org/2000/svg';
+            var cx=190, cy=190, r=120, R=48, BRAND='#D20565';
+            var labels=['자원','생산','사용','수리·재사용','재활용'];
+            for(var i=0;i<5;i++){
+              var ang=(-90+i*72)*Math.PI/180;
+              var x=cx+r*Math.cos(ang), y=cy+r*Math.sin(ang);
+              var c=document.createElementNS(ns,'circle');
+              c.setAttribute('cx',x); c.setAttribute('cy',y); c.setAttribute('r',R);
+              c.setAttribute('fill','#fbeaf0'); c.setAttribute('stroke',BRAND); c.setAttribute('stroke-width','1');
+              svg.appendChild(c);
+              var t=document.createElementNS(ns,'text');
+              t.setAttribute('x',x); t.setAttribute('y',y);
+              t.setAttribute('text-anchor','middle'); t.setAttribute('dominant-baseline','central');
+              t.setAttribute('font-size','14'); t.setAttribute('font-weight','500'); t.setAttribute('fill','#99003f');
+              t.textContent=labels[i];
+              svg.appendChild(t);
+            }
+            for(var i=0;i<5;i++){
+              var a1=(-90+i*72)*Math.PI/180, a2=(-90+(i+1)*72)*Math.PI/180, pad=0.42;
+              var x1=cx+r*Math.cos(a1+pad), y1=cy+r*Math.sin(a1+pad);
+              var x2=cx+r*Math.cos(a2-pad), y2=cy+r*Math.sin(a2-pad);
+              var p=document.createElementNS(ns,'path');
+              p.setAttribute('d','M'+x1+' '+y1+' A'+r+' '+r+' 0 0 1 '+x2+' '+y2);
+              p.setAttribute('fill','none'); p.setAttribute('stroke',BRAND); p.setAttribute('stroke-width','1.5');
+              svg.appendChild(p);
+              var ang2=Math.atan2(y2-cy,x2-cx)+Math.PI/2, s=7;
+              var h=document.createElementNS(ns,'path');
+              h.setAttribute('d','M'+(x2-s*Math.cos(ang2-0.4))+' '+(y2-s*Math.sin(ang2-0.4))+' L'+x2+' '+y2+' L'+(x2-s*Math.cos(ang2+0.4))+' '+(y2-s*Math.sin(ang2+0.4)));
+              h.setAttribute('fill','none'); h.setAttribute('stroke',BRAND); h.setAttribute('stroke-width','1.5');
+              h.setAttribute('stroke-linecap','round'); h.setAttribute('stroke-linejoin','round');
+              svg.appendChild(h);
+            }
+          })();
+          </script>
+
+          <p class="ce-source">출처: SAP Korea — 순환경제란 무엇인가 (세 원칙은 Ellen MacArthur Foundation 기반)<br>
+            <a href="https://www.sap.com/korea/resources/circular-economy" target="_blank" rel="noopener">https://www.sap.com/korea/resources/circular-economy</a></p>
+        </div>
+
         <div id="tab-lg"    class="ce-panel hidden">준비 중</div>
         <div id="tab-cases" class="ce-panel hidden">준비 중</div>
       </div>
