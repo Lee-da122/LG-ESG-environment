@@ -284,6 +284,7 @@
       .screen { min-height: 540px; }
     }
   </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 </head>
 <body>
   <header class="g-header">
@@ -388,7 +389,93 @@
             <a href="https://www.sap.com/korea/resources/circular-economy" target="_blank" rel="noopener">https://www.sap.com/korea/resources/circular-economy</a></p>
         </div>
 
-        <div id="tab-lg"    class="ce-panel hidden">준비 중</div>
+        <div id="tab-lg" class="ce-panel hidden">
+          <div style="padding:1rem 0;">
+            <div style="margin-bottom:1.25rem;">
+              <div style="display:inline-block; font-size:12px; font-weight:500; color:#A50034; border:1px solid #A50034; border-radius:6px; padding:2px 8px; margin-bottom:8px;">LG전자</div>
+              <h3 style="margin:0 0 4px;">순환 사이클에서 낸 성과</h3>
+              <p style="font-size:14px; color:#52514e; margin:0; line-height:1.6;">자원을 아끼고, 오래 쓰게 하고, 버리지 않는<br>순환의 각 단계에서 거둔 결과예요.</p>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:14px;">
+
+              <div style="background:#fff; border:0.5px solid #e1e0d9; border-radius:12px; padding:1.25rem;">
+                <div style="font-size:12px; color:#D20565; font-weight:500; margin-bottom:4px;">자원 · 생산 단계</div>
+                <div style="font-size:16px; font-weight:500; margin-bottom:10px;">1. 자원 효율성 향상</div>
+                <ul style="margin:0 0 14px; padding-left:18px; font-size:14px; color:#52514e; line-height:1.9;">
+                  <li>재활용 소재 사용 늘리기</li>
+                  <li>제품 중량·부피 줄이기</li>
+                  <li>친환경 포장 적용</li>
+                </ul>
+                <div style="font-size:13px; color:#52514e; margin-bottom:6px;">재활용 플라스틱 누적 사용량 (킬로톤)</div>
+                <div style="position:relative; width:100%; height:160px;">
+                  <canvas id="lgPlastic" role="img" aria-label="재활용 플라스틱 누적 사용량 2022년 59, 2023년 114, 2024년 188 킬로톤 증가 막대그래프">2022년 59, 2023년 114, 2024년 188 킬로톤</canvas>
+                </div>
+              </div>
+
+              <div style="background:#fff; border:0.5px solid #e1e0d9; border-radius:12px; padding:1.25rem;">
+                <div style="font-size:12px; color:#D20565; font-weight:500; margin-bottom:4px;">사용 · 폐기 단계</div>
+                <div style="font-size:16px; font-weight:500; margin-bottom:10px;">2. 더 오래 쓰는 가전</div>
+                <p style="font-size:14px; color:#52514e; margin:0 0 14px; line-height:1.8;">LG UP가전은 업데이트로 제품을 더 오래 쓰게 하고,<br>수명이 다한 제품은 글로벌 회수 체계로 거둬들입니다.</p>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                  <div style="background:#f3f4f2; border-radius:8px; padding:0.9rem;">
+                    <div style="font-size:22px; font-weight:500; color:#D20565;">501<span style="font-size:14px;">만 톤</span></div>
+                    <div style="font-size:12px; color:#898781; margin-top:2px;">폐가전 누적 회수 (2024)</div>
+                  </div>
+                  <div style="background:#f3f4f2; border-radius:8px; padding:0.9rem;">
+                    <div style="font-size:22px; font-weight:500;">56<span style="font-size:14px;">개국</span></div>
+                    <div style="font-size:12px; color:#898781; margin-top:2px;">91개 지역 회수 체계</div>
+                  </div>
+                </div>
+              </div>
+
+              <div style="background:#fff; border:0.5px solid #e1e0d9; border-radius:12px; padding:1.25rem;">
+                <div style="font-size:12px; color:#D20565; font-weight:500; margin-bottom:4px;">폐기 단계</div>
+                <div style="font-size:16px; font-weight:500; margin-bottom:10px;">3. 폐기물 Zero化 추진</div>
+                <p style="font-size:14px; color:#52514e; margin:0 0 14px; line-height:1.8;">사업장 폐기물을 철저히 분리·재활용해<br>2030년 목표(95%)를 앞당겨 달성했습니다.</p>
+                <div style="font-size:13px; color:#52514e; margin-bottom:6px;">사업장 폐기물 재활용률</div>
+                <div style="position:relative; width:100%; height:150px;">
+                  <canvas id="lgRecycle" role="img" aria-label="사업장 폐기물 재활용률 2023년 95.5퍼센트, 2024년 97.4퍼센트, 2030년 목표 95퍼센트 막대그래프">2023년 95.5%, 2024년 97.4%, 2030년 목표 95.0%</canvas>
+                </div>
+              </div>
+
+            </div>
+
+            <div style="border:1.5px solid #D20565; border-radius:8px; padding:1rem 1.25rem; margin-top:16px;">
+              <p style="margin:0; font-size:14px; line-height:1.7; color:#D20565;">기업도 순환의 고리를 잇고 있어요.<br>당신의 우산·옷을 고치고 다시 쓰는 것도 같은 실천입니다.</p>
+            </div>
+
+            <p style="font-size:12px; color:#898781; margin-top:12px;">출처: LG전자 지속가능경영 — 자원순환 (2024) · lge.co.kr/sustainability/circularity</p>
+          </div>
+        </div>
+        <script>
+        window.drawLgCharts = (function(){
+          var drawn = false;
+          return function(){
+            if(drawn) return;
+            if(typeof Chart==='undefined'){return setTimeout(window.drawLgCharts,100);}
+            drawn = true;
+            new Chart(document.getElementById('lgPlastic'),{
+              type:'bar',
+              data:{labels:['2022','2023','2024'],
+                datasets:[{data:[59,114,188], backgroundColor:'#D20565', borderRadius:4, barThickness:40}]},
+              options:{responsive:true, maintainAspectRatio:false, layout:{padding:4},
+                scales:{x:{ticks:{color:'#52514e',font:{size:12}}, grid:{display:false}, border:{color:'#c3c2b7'}},
+                        y:{ticks:{color:'#898781',font:{size:11}}, grid:{color:'#e1e0d9'}, border:{display:false}, beginAtZero:true}},
+                plugins:{legend:{display:false}, tooltip:{callbacks:{label:function(c){return c.parsed.y+' 킬로톤';}}}}}
+            });
+            new Chart(document.getElementById('lgRecycle'),{
+              type:'bar',
+              data:{labels:['2023','2024','2030 목표'],
+                datasets:[{data:[95.5,97.4,95.0], backgroundColor:['#f4c0d1','#D20565','#99003f'], borderRadius:4, barThickness:48}]},
+              options:{responsive:true, maintainAspectRatio:false, layout:{padding:4},
+                scales:{x:{ticks:{color:'#52514e',font:{size:12}}, grid:{display:false}, border:{color:'#c3c2b7'}},
+                        y:{ticks:{color:'#898781',font:{size:11},callback:function(v){return v+'%';}}, grid:{color:'#e1e0d9'}, border:{display:false}, min:90, max:100}},
+                plugins:{legend:{display:false}, tooltip:{callbacks:{label:function(c){return c.parsed.y+'%';}}}}}
+            });
+          };
+        })();
+        </script>
         <div id="tab-cases" class="ce-panel hidden">준비 중</div>
       </div>
     </div>
@@ -413,6 +500,9 @@
       document.querySelectorAll('.ce-tab').forEach(function(btn, i) {
         btn.classList.toggle('active', TABS[i] === name);
       });
+      if (name === 'lg' && typeof window.drawLgCharts === 'function') {
+        window.drawLgCharts();
+      }
     }
   </script>
 </body>
