@@ -14,7 +14,7 @@ const GEMINI_URL =
 const MAX_TEXT_LEN     = 500;
 const MAX_STATES       = 20;    // 상태 항목 최대 개수 (남용 방지)
 const RETRY_DELAYS_MS  = [500, 1000, 2000]; // 최대 3회 시도 (초기 + 2회 재시도)
-const TOTAL_TIMEOUT_MS = 25_000;            // 전체 작업 상한 (진단용 임시 상향)
+const TOTAL_TIMEOUT_MS = 9_000;             // Vercel Hobby 10초 한도 — 1초 버퍼 확보
 
 // AbortSignal을 인식하는 sleep
 const sleep = (ms, signal) =>
@@ -101,7 +101,7 @@ module.exports = async function handler(req, res) {
     contents: [{ role: 'user', parts: [{ text: text.trim() }] }],
     generationConfig: {
       responseMimeType: 'application/json',
-      thinkingConfig: { thinkingLevel: 'low' },
+      thinkingConfig: { thinkingBudget: 0 },
     },
   };
 

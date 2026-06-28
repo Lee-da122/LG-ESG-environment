@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "api/classify.js": {
+      "maxDuration": 10
+    }
+  }
+}
