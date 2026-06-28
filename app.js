@@ -259,22 +259,12 @@ function detailLayout(title, bodyHtml) {
 function getMatchedCenters() {
   const source = liveCenters !== null ? liveCenters : centers;
   const itemData = ITEMS.find((i) => i.id === state.item);
-  const itemLabel = itemData ? itemData.label : '';
-  // TODO: 확인 후 제거
-  console.log('[match] 조건: 품목=%s itemLabel=%s 경로=%s', state.item, itemLabel, state.route);
-  const matched = source.filter((c) => {
+  return source.filter((c) => {
     if (c.route !== state.route) return false;
     const categoryOk = !c.category || c.category === state.item;
     const itemsOk    = !c.items || c.items.length === 0 || c.items.includes(state.item);
     return categoryOk && itemsOk;
   });
-  // TODO: 확인 후 제거
-  console.log('[match] 매칭 결과:', matched.length);
-  if (matched.length === 0 && source.length > 0) {
-    console.log('[match] 불일치 샘플 — 시트값 category=%o route=%o vs 기대 category=%s route=%s',
-      source[0].category, source[0].route, itemLabel, state.route);
-  }
-  return matched;
 }
 
 function renderCenterList(matched) {
@@ -922,67 +912,42 @@ async function loadCenters() {
     const res = await fetch(sheetCsvUrl);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const csv = await res.text();
-    // TODO: 확인 후 제거
-    console.log('[centers] fetch status:', res.status, 'text 길이:', csv.length, '앞 200자:', csv.slice(0, 200));
 
     const parsed = Papa.parse(csv, {
       header: true,
       skipEmptyLines: true,
       transformHeader: (h) => h.replace(/^﻿/, '').replace(/\s*\*+\s*$/, '').trim(),
     });
-    // TODO: 확인 후 제거
-    console.log('[centers] 파싱 행:', parsed.data.length, '헤더:', parsed.meta.fields);
-    console.log('[centers] 헤더 원본:', JSON.stringify(parsed.meta.fields));
-    console.log('[centers] 첫 행 원본:', JSON.stringify(parsed.data[0]));
 
     // BOM 제거 헬퍼 (구글 시트 CSV 첫 헤더에 BOM이 붙는 경우 대응)
     const col = (row, key) =>
       (row[key] ?? row['﻿' + key] ?? '').toString().trim();
 
-    // TODO: 확인 후 제거 — 필터 통과 여부 확인
-    var _debugCount = 0;
     liveCenters = parsed.data
       .filter((row) => {
         const name = col(row, '기관·거점명');
-        const pass = !!(name && !name.includes('예시') && !name.includes('(예시)'));
-        if (_debugCount < 3) {
-          console.log('[centers] filter #' + _debugCount + ' name=' + JSON.stringify(name) + ' pass=' + pass);
-          _debugCount++;
-        }
-        return pass;
+        return name && !name.includes('예시') && !name.includes('(예시)');
       })
-      .map((row, i) => {
-        const rawLat = col(row, '위도');
-        const rawLng = col(row, '경도');
-        const lat = parseFloat(rawLat) || null;
-        const lng = parseFloat(rawLng) || null;
-        if (i < 3) {
-          console.log('[centers] 변환 시도 #' + i + ': 위도=' + JSON.stringify(rawLat) + ' 경도=' + JSON.stringify(rawLng) + ' → lat=' + lat + ' lng=' + lng);
-        }
-        return {
-          name:       col(row, '기관·거점명'),
-          category:   sheetVal(SHEET_CATEGORY_MAP, col(row, '카테고리'), '카테고리'),
-          centerType: col(row, '거점유형'),
-          route:      sheetVal(SHEET_ROUTE_MAP, col(row, '경로유형'), '경로유형'),
-          address:    col(row, '도로명주소'),
-          detail:     col(row, '상세 위치'),
-          lat,
-          lng,
-          hours:      col(row, '운영시간'),
-          phone:      col(row, '연락처'),
-          items:      col(row, '취급·수리 가능 항목')
-                        .split(',').map((s) => sheetVal(SHEET_CATEGORY_MAP, s.trim(), '카테고리')).filter(Boolean),
-          note:       col(row, '이용조건·비고'),
-          source:     col(row, '출처유형'),
-          sourceUrl:  col(row, '출처'),
-          checkedAt:  col(row, '확인일'),
-        };
-      });
-    // TODO: 확인 후 제거
-    console.log('[centers] 로드:', liveCenters.length, '첫행:', liveCenters[0] ?? null);
+      .map((row) => ({
+        name:       col(row, '기관·거점명'),
+        category:   sheetVal(SHEET_CATEGORY_MAP, col(row, '카테고리'), '카테고리'),
+        centerType: col(row, '거점유형'),
+        route:      sheetVal(SHEET_ROUTE_MAP, col(row, '경로유형'), '경로유형'),
+        address:    col(row, '도로명주소'),
+        detail:     col(row, '상세 위치'),
+        lat:        parseFloat(col(row, '위도'))  || null,
+        lng:        parseFloat(col(row, '경도'))  || null,
+        hours:      col(row, '운영시간'),
+        phone:      col(row, '연락처'),
+        items:      col(row, '취급·수리 가능 항목')
+                      .split(',').map((s) => sheetVal(SHEET_CATEGORY_MAP, s.trim(), '카테고리')).filter(Boolean),
+        note:       col(row, '이용조건·비고'),
+        source:     col(row, '출처유형'),
+        sourceUrl:  col(row, '출처'),
+        checkedAt:  col(row, '확인일'),
+      }));
   } catch (err) {
-    // TODO: 확인 후 제거
-    console.warn('[centers] 폴백 — fetch/파싱 오류:', err);
+    console.warn('[loadCenters] CSV 로드 실패 → data.js centers 사용:', err);
     liveCenters = [...centers]; // data.js 폴백
   }
 
