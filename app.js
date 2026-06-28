@@ -842,7 +842,11 @@ async function loadCenters() {
     // TODO: 확인 후 제거
     console.log('[centers] fetch status:', res.status, 'text 길이:', csv.length, '앞 200자:', csv.slice(0, 200));
 
-    const parsed = Papa.parse(csv, { header: true, skipEmptyLines: true });
+    const parsed = Papa.parse(csv, {
+      header: true,
+      skipEmptyLines: true,
+      transformHeader: (h) => h.replace(/^﻿/, '').replace(/\s*\*+\s*$/, '').trim(),
+    });
     // TODO: 확인 후 제거
     console.log('[centers] 파싱 행:', parsed.data.length, '헤더:', parsed.meta.fields);
     console.log('[centers] 헤더 원본:', JSON.stringify(parsed.meta.fields));
@@ -857,7 +861,7 @@ async function loadCenters() {
     liveCenters = parsed.data
       .filter((row) => {
         const name = col(row, '기관·거점명');
-        const pass = !!(name && !name.includes('예시'));
+        const pass = !!(name && !name.includes('예시') && !name.includes('(예시)'));
         if (_debugCount < 3) {
           console.log('[centers] filter #' + _debugCount + ' name=' + JSON.stringify(name) + ' pass=' + pass);
           _debugCount++;
