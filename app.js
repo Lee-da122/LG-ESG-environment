@@ -260,12 +260,21 @@ function getMatchedCenters() {
   const source = liveCenters !== null ? liveCenters : centers;
   const itemData = ITEMS.find((i) => i.id === state.item);
   const itemLabel = itemData ? itemData.label : '';
-  return source.filter((c) => {
+  // TODO: 확인 후 제거
+  console.log('[match] 조건: 품목=%s itemLabel=%s 경로=%s', state.item, itemLabel, state.route);
+  const matched = source.filter((c) => {
     if (c.route !== state.route) return false;
     const categoryOk = !c.category || c.category === itemLabel;
     const itemsOk    = !c.items || c.items.length === 0 || c.items.includes(itemLabel);
     return categoryOk && itemsOk;
   });
+  // TODO: 확인 후 제거
+  console.log('[match] 매칭 결과:', matched.length);
+  if (matched.length === 0 && source.length > 0) {
+    console.log('[match] 불일치 샘플 — 시트값 category=%o route=%o vs 기대 category=%s route=%s',
+      source[0].category, source[0].route, itemLabel, state.route);
+  }
+  return matched;
 }
 
 function renderCenterList(matched) {
@@ -861,7 +870,7 @@ async function loadCenters() {
         checkedAt:  col(row, '확인일'),
       }));
     // TODO: 확인 후 제거
-    console.log('[centers] 로드됨:', liveCenters.length, '첫 행:', liveCenters[0] ?? null);
+    console.log('[centers] 로드:', liveCenters.length, '첫행:', liveCenters[0] ?? null);
   } catch (err) {
     console.warn('[loadCenters] CSV 로드 실패 → data.js centers 사용:', err);
     liveCenters = [...centers]; // 폴백
