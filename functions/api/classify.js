@@ -12,7 +12,7 @@ const GEMINI_URL =
 const MAX_TEXT_LEN     = 500;
 const MAX_STATES       = 20;
 const RETRY_DELAYS_MS  = [500, 1000, 2000];
-const TOTAL_TIMEOUT_MS = 9_000;
+const TOTAL_TIMEOUT_MS = 18_000;
 
 const sleep = (ms, signal) =>
   new Promise((resolve, reject) => {
@@ -97,7 +97,10 @@ export async function onRequestPost(context) {
   const requestBody = {
     systemInstruction,
     contents: [{ role: 'user', parts: [{ text: text.trim() }] }],
-    generationConfig: { responseMimeType: 'application/json' },
+    generationConfig: {
+      responseMimeType: 'application/json',
+      thinkingConfig: { thinkingBudget: 0 },
+    },
   };
 
   const ac = new AbortController();
