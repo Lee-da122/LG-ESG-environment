@@ -264,8 +264,8 @@ function getMatchedCenters() {
   console.log('[match] 조건: 품목=%s itemLabel=%s 경로=%s', state.item, itemLabel, state.route);
   const matched = source.filter((c) => {
     if (c.route !== state.route) return false;
-    const categoryOk = !c.category || c.category === itemLabel;
-    const itemsOk    = !c.items || c.items.length === 0 || c.items.includes(itemLabel);
+    const categoryOk = !c.category || c.category === state.item;
+    const itemsOk    = !c.items || c.items.length === 0 || c.items.includes(state.item);
     return categoryOk && itemsOk;
   });
   // TODO: 확인 후 제거
@@ -830,11 +830,24 @@ function render() {
 /* ── 시트 한글값 → 코드 내부값 매핑 ── */
 
 const SHEET_ROUTE_MAP = {
+  '자가수리':    'self',
   '전문가수리':  'pro',
   '재사용·기부': 'reuse',
   '재활용·폐기': 'recycle',
-  '자가수리':    'self',
 };
+
+const SHEET_CATEGORY_MAP = {
+  '우산':      'umbrella',
+  '의류·가방': 'clothing',
+};
+
+function sheetVal(map, raw, field) {
+  const key = raw.trim().replace(/\s/g, '');
+  if (!key) return '';
+  const v = map[key];
+  if (v === undefined) console.warn('[centers] 매핑 없음 (' + field + '):', JSON.stringify(raw));
+  return v ?? '';
+}
 
 /* ── CSV 거점 로더 ── */
 
@@ -887,9 +900,9 @@ async function loadCenters() {
         }
         return {
           name:       col(row, '기관·거점명'),
-          category:   col(row, '카테고리'),
+          category:   sheetVal(SHEET_CATEGORY_MAP, col(row, '카테고리'), '카테고리'),
           centerType: col(row, '거점유형'),
-          route:      SHEET_ROUTE_MAP[col(row, '경로유형').replace(/\s/g, '')] ?? col(row, '경로유형'),
+          route:      sheetVal(SHEET_ROUTE_MAP, col(row, '경로유형'), '경로유형'),
           address:    col(row, '도로명주소'),
           detail:     col(row, '상세 위치'),
           lat,
@@ -897,7 +910,7 @@ async function loadCenters() {
           hours:      col(row, '운영시간'),
           phone:      col(row, '연락처'),
           items:      col(row, '취급·수리 가능 항목')
-                        .split(',').map((s) => s.trim()).filter(Boolean),
+                        .split(',').map((s) => sheetVal(SHEET_CATEGORY_MAP, s.trim(), '카테고리')).filter(Boolean),
           note:       col(row, '이용조건·비고'),
           source:     col(row, '출처유형'),
           sourceUrl:  col(row, '출처'),
