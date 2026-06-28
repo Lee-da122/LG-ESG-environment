@@ -839,8 +839,12 @@ async function loadCenters() {
     const res = await fetch(sheetCsvUrl);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const csv = await res.text();
+    // TODO: 확인 후 제거
+    console.log('[centers] fetch status:', res.status, 'text 길이:', csv.length, '앞 200자:', csv.slice(0, 200));
 
     const parsed = Papa.parse(csv, { header: true, skipEmptyLines: true });
+    // TODO: 확인 후 제거
+    console.log('[centers] 파싱 행:', parsed.data.length, '헤더:', parsed.meta.fields);
 
     // BOM 제거 헬퍼 (구글 시트 CSV 첫 헤더에 BOM이 붙는 경우 대응)
     const col = (row, key) =>
@@ -872,8 +876,9 @@ async function loadCenters() {
     // TODO: 확인 후 제거
     console.log('[centers] 로드:', liveCenters.length, '첫행:', liveCenters[0] ?? null);
   } catch (err) {
-    console.warn('[loadCenters] CSV 로드 실패 → data.js centers 사용:', err);
-    liveCenters = [...centers]; // 폴백
+    // TODO: 확인 후 제거
+    console.warn('[centers] 폴백 — fetch/파싱 오류:', err);
+    liveCenters = [...centers]; // data.js 폴백
   }
 
   // 결과 화면이 열려 있으면 다시 그림
