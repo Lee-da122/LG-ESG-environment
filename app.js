@@ -860,6 +860,8 @@ async function loadCenters() {
         sourceUrl:  col(row, '출처'),
         checkedAt:  col(row, '확인일'),
       }));
+    // TODO: 확인 후 제거
+    console.log('[centers] 로드됨:', liveCenters.length, '첫 행:', liveCenters[0] ?? null);
   } catch (err) {
     console.warn('[loadCenters] CSV 로드 실패 → data.js centers 사용:', err);
     liveCenters = [...centers]; // 폴백
