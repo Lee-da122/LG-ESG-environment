@@ -827,6 +827,15 @@ function render() {
   requestAnimationFrame(initCo2Chart);
 }
 
+/* ── 시트 한글값 → 코드 내부값 매핑 ── */
+
+const SHEET_ROUTE_MAP = {
+  '전문가수리':  'pro',
+  '재사용·기부': 'reuse',
+  '재활용·폐기': 'recycle',
+  '자가수리':    'self',
+};
+
 /* ── CSV 거점 로더 ── */
 
 async function loadCenters() {
@@ -880,7 +889,7 @@ async function loadCenters() {
           name:       col(row, '기관·거점명'),
           category:   col(row, '카테고리'),
           centerType: col(row, '거점유형'),
-          route:      col(row, '경로유형'),
+          route:      SHEET_ROUTE_MAP[col(row, '경로유형').replace(/\s/g, '')] ?? col(row, '경로유형'),
           address:    col(row, '도로명주소'),
           detail:     col(row, '상세 위치'),
           lat,
