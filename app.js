@@ -543,6 +543,66 @@ function renderSelf() {
   );
 }
 
+/* ── pro/reuse 전용 지도 ── */
+
+function renderProReuseMap() {
+  if (liveCenters === null) {
+    return '<p class="empty-state">거점 불러오는 중…</p>';
+  }
+  const matched = getMatchedCenters();
+  if (matched.length === 0) {
+    return '<p class="empty-state">거점 정보 준비 중</p>';
+  }
+  return `<div id="pro-reuse-map" style="width:100%;height:300px;border-radius:12px;overflow:hidden;background:#f3f4f6;position:relative;z-index:0;"></div>`;
+}
+
+function initProReuseMap() {
+  const mapEl = document.getElementById('pro-reuse-map');
+  if (!mapEl || typeof L === 'undefined') return;
+  if (mapEl._leaflet_id) return;
+
+  const matched = getMatchedCenters();
+  const coords  = matched.filter((c) => c.lat && c.lng && !isNaN(Number(c.lat)));
+  if (coords.length === 0) return;
+
+  const pinkIcon = L.divIcon({
+    className: '',
+    html: '<div style="width:14px;height:14px;background:#D20565;border:2px solid #fff;border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,.35);"></div>',
+    iconSize:    [14, 14],
+    iconAnchor:  [7, 7],
+    popupAnchor: [0, -10],
+  });
+
+  const map = L.map(mapEl, { scrollWheelZoom: false });
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank">OSM</a>',
+    maxZoom: 18,
+  }).addTo(map);
+
+  coords.forEach((c) => {
+    const popup = [
+      `<strong>${c.name}</strong>`,
+      c.address,
+      c.hours,
+      c.phone,
+    ].filter(Boolean).join('<br>');
+    L.marker([Number(c.lat), Number(c.lng)], { icon: pinkIcon }).addTo(map).bindPopup(popup);
+  });
+
+  if (coords.length === 1) {
+    map.setView([Number(coords[0].lat), Number(coords[0].lng)], 14);
+  } else {
+    map.fitBounds(
+      L.latLngBounds(coords.map((c) => [Number(c.lat), Number(c.lng)])),
+      { padding: [30, 30] }
+    );
+  }
+
+  // Leaflet은 컨테이너가 숨겨진 직후 크기를 0으로 잡는 버그가 있어 강제 리사이즈
+  requestAnimationFrame(() => map.invalidateSize());
+}
+
 function renderPro() {
   return resultLayout(
     ROUTE_LABELS.pro,
@@ -553,7 +613,7 @@ function renderPro() {
     </div>
     <div class="content-section">
       <h2 class="section-title">근처 거점</h2>
-      ${renderCenterList(getMatchedCenters())}
+      ${renderProReuseMap()}
     </div>
     ${renderCo2Graph()}`
   );
@@ -569,7 +629,7 @@ function renderReuse() {
     </div>
     <div class="content-section">
       <h2 class="section-title">근처 거점</h2>
-      ${renderCenterList(getMatchedCenters())}
+      ${renderProReuseMap()}
     </div>`
   );
 }
@@ -824,6 +884,7 @@ function render() {
 
   // 지도·차트 초기화 (레이아웃 계산 후 실행)
   requestAnimationFrame(initMapIfPresent);
+  requestAnimationFrame(initProReuseMap);
   requestAnimationFrame(initCo2Chart);
 }
 
