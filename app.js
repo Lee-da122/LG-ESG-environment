@@ -624,6 +624,44 @@ function renderReuse() {
   );
 }
 
+/* ── 우산 분리배출 가이드 카드 ── */
+
+function renderUmbrellaDisposalGuide() {
+  const steps = [
+    '천(합성섬유)은 <strong>종량제봉투</strong>에 일반쓰레기로 배출',
+    '살대·뼈대(금속)는 가위로 천과 분리 후 <strong>고철(캔류)</strong>로 배출',
+    '손잡이가 플라스틱이면 분리해 <strong>플라스틱</strong>으로, 비닐우산 천은 <strong>비닐류</strong>로 배출',
+    '분리가 어려우면 <strong>통째로 종량제봉투</strong>에 배출 — 자동우산은 갑자기 펴지지 않게 끈으로 묶어 고정',
+    '종량제봉투보다 큰 장우산은 거주지 주민센터·구청에 <strong>대형생활폐기물</strong>로 신고 후 배출',
+  ];
+
+  const stepsHtml = steps.map((text, i) => `
+    <li class="step-item">
+      <span class="step-num">${i + 1}</span>
+      <span class="step-text">${text}</span>
+    </li>
+  `).join('');
+
+  return `
+    <div class="disposal-guide">
+      <div class="disposal-guide-title">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="#D20565" aria-hidden="true">
+          <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>
+        </svg>
+        올바른 우산 분리배출 방법
+      </div>
+      <ol class="step-list">${stepsHtml}</ol>
+      <p class="disposal-note">※ 곰팡이 핀 천은 재활용·기부가 불가하므로 종량제봉투로 배출</p>
+      <div class="source-links">
+        <span style="font-size:11px;color:#9ca3af;font-weight:600;">출처</span>
+        <a href="https://www.seo.incheon.kr/open_content/main/part/clean/detritus_seperate.jsp" target="_blank" rel="noopener" class="source-link">인천광역시 서구 「분리수거·분리배출 요령」 (환경부·인천 서구, 공공누리)</a>
+        <a href="https://www.icjg.go.kr/krpt0407c" target="_blank" rel="noopener" class="source-link">인천광역시 중구 「대형폐기물 처리 안내」</a>
+        <a href="https://blisgo.com/%EC%BA%94%EB%A5%98/%EC%9A%B0%EC%82%B0-%EB%B2%84%EB%A6%AC%EB%8A%94-%EB%B2%95/" target="_blank" rel="noopener" class="source-link">블리스고 쓰레기 백과사전 — 우산 버리는 법</a>
+      </div>
+    </div>
+  `;
+}
+
 /* ── 결과: recycle 허브 ── */
 
 function renderRecycleHub() {
@@ -657,7 +695,8 @@ function renderRecycleHub() {
       <p class="info-box-text">${warningText}</p>
     </div>
     <div class="section-title" style="margin-top:4px;">버리는 방법</div>
-    <div class="menu-list">${menuCards}</div>`,
+    <div class="menu-list">${menuCards}</div>
+    ${!isClothing ? renderUmbrellaDisposalGuide() : ''}`,
     footerNote
   );
 }
