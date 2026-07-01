@@ -264,21 +264,16 @@ function escHtml(s) {
     .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-function reportBtnHtml(name) {
-  if (typeof reportFormUrl === 'undefined' || !reportFormUrl) return '';
-  const done = !!localStorage.getItem('reported_' + name);
-  return `<button class="report-btn${done ? ' report-btn--done' : ''}" onclick="reportCenter(this)" data-center="${escHtml(name)}"${done ? ' disabled' : ''}>${done ? '신고 접수됨' : '정보가 잘못됐어요'}</button>`;
-}
-
-function reportCenter(btn) {
-  const name = btn.dataset.center;
-  localStorage.setItem('reported_' + name, '1');
-  btn.disabled = true;
-  btn.textContent = '신고 접수됨';
-  btn.classList.add('report-btn--done');
-  if (typeof reportFormUrl !== 'undefined' && reportFormUrl) {
-    window.open(reportFormUrl + encodeURIComponent(name), '_blank', 'noopener');
-  }
+function centerActionButtons() {
+  const hasSubmit = typeof reportSubmitFormUrl !== 'undefined' && reportSubmitFormUrl;
+  const hasReport = typeof reportFormUrl !== 'undefined' && reportFormUrl;
+  if (!hasSubmit && !hasReport) return '';
+  return `
+    <div class="center-action-buttons">
+      ${hasSubmit ? `<a href="${escHtml(reportSubmitFormUrl)}" target="_blank" rel="noopener" class="btn-outline">거점 제보하기</a>` : ''}
+      ${hasReport ? `<a href="${escHtml(reportFormUrl)}" target="_blank" rel="noopener" class="btn-outline">잘못된 정보 신고하기</a>` : ''}
+    </div>
+  `;
 }
 
 function makeMarkerIcon(origin) {
@@ -301,7 +296,6 @@ function centerPopupHtml(c) {
     c.address ? escHtml(c.address) : null,
     c.hours   ? escHtml(c.hours)   : null,
     c.phone   ? escHtml(c.phone)   : null,
-    reportBtnHtml(c.name),
   ].filter(Boolean).join('<br>');
 }
 
@@ -336,7 +330,6 @@ function renderCenterList(matched) {
           ${c.hours  ? `<p class="center-detail">${escHtml(c.hours)}</p>` : ''}
           ${c.phone  ? `<p class="center-detail">${escHtml(c.phone)}</p>` : ''}
           ${c.note   ? `<p class="center-note">${escHtml(c.note)}</p>`    : ''}
-          ${reportBtnHtml(c.name)}
         </li>
       `).join('')}
     </ul>
@@ -641,6 +634,7 @@ function renderPro() {
     <div class="content-section">
       <h2 class="section-title">근처 거점</h2>
       ${renderProReuseMap()}
+      ${centerActionButtons()}
     </div>
     ${renderCo2Graph()}`
   );
@@ -657,6 +651,7 @@ function renderReuse() {
     <div class="content-section">
       <h2 class="section-title">근처 거점</h2>
       ${renderProReuseMap()}
+      ${centerActionButtons()}
     </div>`
   );
 }
@@ -845,6 +840,7 @@ function renderRecycleMap() {
       <h2 class="section-title">목록</h2>
       ${renderCenterList(matched)}
     </div>
+    ${centerActionButtons()}
   `);
 }
 

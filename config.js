@@ -15,12 +15,13 @@ const classifyEndpoint = '/api/classify';
 const sheetCsvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQrpNOwZTG7w5uUUfjqrBBJVNq3ZLupg4dZ7i7CbTwXFbih7oMTsFtPPivzExY2BcpD16bu8_EZaqGa/pub?gid=528619496&single=true&output=csv';
 
 // 제보 거점 구글폼 응답 시트 CSV. 비워두면 제보 거점은 표시되지 않음.
-// 예: 'https://docs.google.com/spreadsheets/d/e/FORM_RESPONSE_SHEET_ID/pub?gid=0&single=true&output=csv'
-const reportCsvUrl = '';
+const reportCsvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTas4SrynzlyR-zRcgRLA8XPAs1dPYsd5OfXMKq_rT4yBJp6Iain347pTCx1LCxqIqLPMV3ylubDSyo/pub?output=csv';
 
-// 거점 신고용 구글폼 URL (거점명이 prefill됨). 비워두면 신고 버튼이 표시되지 않음.
-// 예: 'https://docs.google.com/forms/d/e/FORM_ID/viewform?usp=pp_url&entry.FIELD_ID='
-const reportFormUrl = '';
+// 새 거점 제보 구글폼 링크 (지도 아래 "거점 제보하기" 버튼)
+const reportSubmitFormUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSd_9O7UvP6j4SU2Rx4K9wSLO8kwZ-L49Uf8QNjJ3rp4NxN5Jg/viewform';
+
+// 거점 정보 오류 신고 구글폼 링크 (지도 아래 "잘못된 정보 신고하기" 버튼)
+const reportFormUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSeoxeuGKBtxAd5AkiRNEH61bBpWqsD4WkeLYiT9jlIpaDLnMQ/viewform';
 
 /**
  * 사용자 자유 텍스트를 서버리스 프록시로 보내 { item, state } 로 분류받습니다.
