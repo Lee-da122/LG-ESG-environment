@@ -295,10 +295,9 @@ function renderCenterList(matched) {
 
 /* ── CO₂ 그래프: 헬퍼 & 렌더 ── */
 
-function calcCo2(productionKg, months, freqPerWeek, moreMonths) {
-  const WEEKS_PER_MONTH = 4.345;
-  const usesNow    = Math.max(1, Math.round(freqPerWeek * months * WEEKS_PER_MONTH));
-  const usesFuture = Math.max(1, Math.round(freqPerWeek * (months + moreMonths) * WEEKS_PER_MONTH));
+function calcCo2(productionKg, weeks, freqPerWeek, moreWeeks) {
+  const usesNow    = Math.max(1, Math.round(freqPerWeek * weeks));
+  const usesFuture = Math.max(1, Math.round(freqPerWeek * (weeks + moreWeeks)));
   const perNow     = Math.round((productionKg * 1000) / usesNow);
   const perFuture  = Math.round((productionKg * 1000) / usesFuture);
   return { usesNow, usesFuture, perNow, perFuture };
@@ -314,16 +313,16 @@ function renderCo2Graph() {
       <h2 class="section-title">수리할수록 줄어드는 탄소 발자국</h2>
       <div class="co2-sliders">
         <div class="co2-slider-row">
-          <label>산 지 <strong id="co2-months-val">12</strong>개월</label>
-          <input type="range" id="co2-months" min="1" max="120" value="12" />
+          <label>산 지 <strong id="co2-months-val">4</strong>주</label>
+          <input type="range" id="co2-months" min="1" max="520" value="4" />
         </div>
         <div class="co2-slider-row">
           <label>주당 <strong id="co2-freq-val">3</strong>회 사용</label>
           <input type="range" id="co2-freq" min="1" max="14" value="3" />
         </div>
         <div class="co2-slider-row">
-          <label>앞으로 <strong id="co2-more-val">12</strong>개월 더 사용</label>
-          <input type="range" id="co2-more" min="1" max="60" value="12" />
+          <label>앞으로 <strong id="co2-more-val">4</strong>주 더 사용</label>
+          <input type="range" id="co2-more" min="1" max="260" value="4" />
         </div>
       </div>
       <div class="co2-summary">
@@ -379,15 +378,15 @@ function initCo2Chart() {
   }
 
   function updateChart() {
-    const months = parseInt(document.getElementById('co2-months').value);
-    const freq   = parseInt(document.getElementById('co2-freq').value);
-    const more   = parseInt(document.getElementById('co2-more').value);
+    const weeks = parseInt(document.getElementById('co2-months').value);
+    const freq  = parseInt(document.getElementById('co2-freq').value);
+    const more  = parseInt(document.getElementById('co2-more').value);
 
-    document.getElementById('co2-months-val').textContent = months;
+    document.getElementById('co2-months-val').textContent = weeks;
     document.getElementById('co2-freq-val').textContent   = freq;
     document.getElementById('co2-more-val').textContent   = more;
 
-    const { usesNow, usesFuture, perNow, perFuture } = calcCo2(productionKg, months, freq, more);
+    const { usesNow, usesFuture, perNow, perFuture } = calcCo2(productionKg, weeks, freq, more);
     document.getElementById('co2-uses-now').textContent   = usesNow;
     document.getElementById('co2-per-now').textContent    = perNow;
     document.getElementById('co2-per-future').textContent = perFuture;
@@ -402,8 +401,8 @@ function initCo2Chart() {
     co2Chart.update();
   }
 
-  const initMonths = 12, initFreq = 3, initMore = 12;
-  const { usesNow, usesFuture, perNow, perFuture } = calcCo2(productionKg, initMonths, initFreq, initMore);
+  const initWeeks = 4, initFreq = 3, initMore = 4;
+  const { usesNow, usesFuture, perNow, perFuture } = calcCo2(productionKg, initWeeks, initFreq, initMore);
   const { xMin, xMax, yMax } = axisRange(usesNow, usesFuture, perNow);
 
   document.getElementById('co2-uses-now').textContent   = usesNow;
