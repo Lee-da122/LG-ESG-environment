@@ -168,9 +168,23 @@ const DISPOSAL = {
       '속옷·양말 (지자체별 상이)',
     ],
     sections: [
-      { key: 'collection', icon: '👕', title: '수거함에 넣어도 될까', desc: '재사용 가능 여부' },
-      { key: 'waste',      icon: '🗑️', title: '못 쓰는 건 어떻게',   desc: '종량제·대형폐기물' },
-      { key: 'map',        icon: '📍', title: '근처 수거함·기부처',  desc: '지도에서 보기' },
+      { key: 'waste', icon: '🗑️', title: '못 쓰는 건 어떻게', desc: '종량제·대형폐기물' },
     ],
+
+    donationGuide: {
+      criteria: '아름다운가게 등 기부처는 판매를 목적으로 물품을 받기 때문에, 세탁·수선 없이 바로 팔 수 있는 깨끗한 상태여야 기부가 가능합니다.',
+      acceptable: [
+        '깨끗하고 마른 옷',
+        '두 짝 다 있고 다시 신을 수 있는 신발',
+        '파손·곰팡이 없는 가방',
+      ],
+      notAcceptable: [
+        '오염·훼손이 심하거나 곰팡이 핀 옷 (재판매 불가 — 종량제 배출 대상)',
+        '속옷·양말·잠옷 (위생상 기부처에서 항상 제외)',
+        '수선이 필요한 옷',
+      ],
+      sourceLabel: '아름다운가게 자주묻는질문',
+      sourceUrl: 'https://www.beautifulstore.org/faq',
+    },
   },
 };

@@ -641,12 +641,32 @@ function renderPro() {
 }
 
 function renderReuse() {
+  const dg = DISPOSAL.clothing.donationGuide;
+  const acceptHtml = dg.acceptable.map((i) => `<li>${i}</li>`).join('');
+  const rejectHtml = dg.notAcceptable.map((i) => `<li>${i}</li>`).join('');
+
   return resultLayout(
     ROUTE_LABELS.reuse,
     `${state.condition} — 기부처에 전달해 주세요.`,
     `<div class="content-section">
       <h2 class="section-title">기부 안내</h2>
-      <p class="empty-state">내용 준비 중</p>
+      <div class="info-box warn-box">
+        <p class="info-box-title">판단 기준</p>
+        <p class="info-box-text">${dg.criteria}</p>
+      </div>
+      <div class="content-section" style="margin-top:0;">
+        <h2 class="section-title">기부 가능한 물품</h2>
+        <ul class="disposal-list">${acceptHtml}</ul>
+      </div>
+      <div class="info-box safety-box">
+        <p class="info-box-title">⚠ 기부가 어려운 경우</p>
+        <ul class="donotput-list">${rejectHtml}</ul>
+        <p class="info-box-text" style="margin-top:8px;">오염·훼손이 심하다면? 기부 대신 분리배출을 확인하세요.</p>
+      </div>
+      <div class="source-links" style="margin-top:8px;">
+        <span style="font-size:11px;color:#9ca3af;font-weight:600;">출처</span>
+        <a href="${escHtml(dg.sourceUrl)}" target="_blank" rel="noopener" class="source-link">${escHtml(dg.sourceLabel)}</a>
+      </div>
     </div>
     <div class="content-section">
       <h2 class="section-title">근처 거점</h2>
@@ -710,6 +730,20 @@ function renderRecycleHub() {
     ? '※ 지자체·수거함·업체마다 수거 품목이 다를 수 있으니 현장 안내문을 확인하세요.'
     : '※ 지역마다 분리수거 규정이 다를 수 있습니다. OO구 기준 · 확인일 미정';
 
+  if (isClothing) {
+    return resultLayout(
+      ROUTE_LABELS.recycle,
+      `${state.condition} — 분리 배출해 주세요.`,
+      `<div class="info-box warn-box">
+        <p class="info-box-title">${warningTitle}</p>
+        <p class="info-box-text">${warningText}</p>
+      </div>
+      <div class="section-title" style="margin-top:4px;">버리는 방법</div>
+      ${renderClothingWasteBody()}`,
+      footerNote
+    );
+  }
+
   const menuCards = d.sections.map((sec) => `
     <button class="menu-card" onclick="showDetail('${sec.key}')">
       <span class="menu-icon">${sec.icon}</span>
@@ -730,7 +764,7 @@ function renderRecycleHub() {
     </div>
     <div class="section-title" style="margin-top:4px;">버리는 방법</div>
     <div class="menu-list">${menuCards}</div>
-    ${!isClothing ? renderUmbrellaDisposalGuide() : ''}`,
+    ${renderUmbrellaDisposalGuide()}`,
     footerNote
   );
 }
@@ -786,30 +820,12 @@ function renderUmbrellaBins() {
 
 /* ── 결과: recycle 세부 화면 (의류) ── */
 
-function renderClothingCollection() {
-  const d = DISPOSAL.clothing;
-  const itemsHtml = d.collectionBin.items.map((i) => `<li>${i}</li>`).join('');
-
-  return detailLayout('수거함에 넣어도 될까', `
-    <div class="info-box warn-box">
-      <p class="info-box-title">판단 기준</p>
-      <p class="info-box-text">${d.judgeCriteria}</p>
-    </div>
-    <div class="content-section">
-      <h2 class="section-title">${d.collectionBin.title}</h2>
-      <ul class="disposal-list">${itemsHtml}</ul>
-      <p class="disposal-caution">${d.collectionBin.caution}</p>
-    </div>
-  `);
-}
-
-function renderClothingWaste() {
+function renderClothingWasteBody() {
   const d = DISPOSAL.clothing;
   const generalHtml  = d.generalWaste.items.map((i) => `<li>${i}</li>`).join('');
   const bulkyHtml    = d.bulkyWaste.items.map((i) => `<li>${i}</li>`).join('');
   const doNotPutHtml = d.doNotPutInBin.map((i) => `<li>${i}</li>`).join('');
-
-  return detailLayout('못 쓰는 건 어떻게', `
+  return `
     <div class="content-section">
       <h2 class="section-title">${d.generalWaste.title}</h2>
       <ul class="disposal-list">${generalHtml}</ul>
@@ -822,7 +838,11 @@ function renderClothingWaste() {
       <p class="info-box-title">⚠ 의류수거함에 넣으면 안 되는 것</p>
       <ul class="donotput-list">${doNotPutHtml}</ul>
     </div>
-  `);
+  `;
+}
+
+function renderClothingWaste() {
+  return detailLayout('못 쓰는 건 어떻게', renderClothingWasteBody());
 }
 
 /* ── 결과: recycle 세부 화면 (공통 지도) ── */
@@ -880,11 +900,7 @@ function renderRecycleDetail(key) {
     }
   }
   if (state.item === 'clothing') {
-    switch (key) {
-      case 'collection': return renderClothingCollection();
-      case 'waste':      return renderClothingWaste();
-      case 'map':        return renderRecycleMap();
-    }
+    if (key === 'waste') return renderClothingWaste();
   }
   return renderRecycleHub();
 }
