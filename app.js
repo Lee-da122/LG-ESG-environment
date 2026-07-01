@@ -689,11 +689,13 @@ function renderUmbrellaDisposalGuide() {
       </div>
       <ol class="step-list">${stepsHtml}</ol>
       <p class="disposal-note">※ 곰팡이 핀 천은 재활용·기부가 불가하므로 종량제봉투로 배출</p>
+      <p class="disposal-note" style="margin-top:8px;border-top:none;padding-top:0;">분리배출 전, 가까운 우산 수리센터를 먼저 확인해 보세요. 최근 우산 수리 센터를 운영하는 지자체가 늘고 있고, 망가진 우산에서 나온 부품을 다른 우산 수리에 활용하기도 합니다.</p>
       <div class="source-links">
         <span style="font-size:11px;color:#9ca3af;font-weight:600;">출처</span>
         <a href="https://www.seo.incheon.kr/open_content/main/part/clean/detritus_seperate.jsp" target="_blank" rel="noopener" class="source-link">인천광역시 서구 「분리수거·분리배출 요령」 (환경부·인천 서구, 공공누리)</a>
         <a href="https://www.icjg.go.kr/krpt0407c" target="_blank" rel="noopener" class="source-link">인천광역시 중구 「대형폐기물 처리 안내」</a>
         <a href="https://blisgo.com/%EC%BA%94%EB%A5%98/%EC%9A%B0%EC%82%B0-%EB%B2%84%EB%A6%AC%EB%8A%94-%EB%B2%95/" target="_blank" rel="noopener" class="source-link">블리스고 쓰레기 백과사전 — 우산 버리는 법</a>
+        <a href="https://gscaltexmediahub.com/esg/esg-campaign/plastic-recycling-guide/plastic-literacy-umbrella/" target="_blank" rel="noopener" class="source-link">GS칼텍스 미디어허브 「플리를 알려줘」 — 올바른 우산 분리배출 방법 (2023.10.06)</a>
       </div>
     </div>
   `;
@@ -879,7 +881,6 @@ function renderRecycleDetail(key) {
     switch (key) {
       case 'disassemble': return renderUmbrellaDisassemble();
       case 'bins':        return renderUmbrellaBins();
-      case 'map':         return renderRecycleMap();
     }
   }
   if (state.item === 'clothing') {
