@@ -256,6 +256,55 @@ function detailLayout(title, bodyHtml) {
 
 /* ── 거점 헬퍼 ── */
 
+/* ── 거점 신고 & 마커 헬퍼 ── */
+
+function escHtml(s) {
+  return String(s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function reportBtnHtml(name) {
+  if (typeof reportFormUrl === 'undefined' || !reportFormUrl) return '';
+  const done = !!localStorage.getItem('reported_' + name);
+  return `<button class="report-btn${done ? ' report-btn--done' : ''}" onclick="reportCenter(this)" data-center="${escHtml(name)}"${done ? ' disabled' : ''}>${done ? '신고 접수됨' : '정보가 잘못됐어요'}</button>`;
+}
+
+function reportCenter(btn) {
+  const name = btn.dataset.center;
+  localStorage.setItem('reported_' + name, '1');
+  btn.disabled = true;
+  btn.textContent = '신고 접수됨';
+  btn.classList.add('report-btn--done');
+  if (typeof reportFormUrl !== 'undefined' && reportFormUrl) {
+    window.open(reportFormUrl + encodeURIComponent(name), '_blank', 'noopener');
+  }
+}
+
+function makeMarkerIcon(origin) {
+  const isReport = origin === 'report';
+  return L.divIcon({
+    className: '',
+    html: isReport
+      ? '<div style="width:14px;height:14px;background:#fff;border:2.5px solid #D20565;border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,.35);"></div>'
+      : '<div style="width:14px;height:14px;background:#D20565;border:2px solid #fff;border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,.35);"></div>',
+    iconSize: [14, 14], iconAnchor: [7, 7], popupAnchor: [0, -10],
+  });
+}
+
+function centerPopupHtml(c) {
+  const badge = c.origin === 'report'
+    ? ' <span style="font-size:10px;font-weight:700;color:#D20565;border:1px solid #D20565;border-radius:3px;padding:1px 4px;vertical-align:middle;">제보</span>'
+    : '';
+  return [
+    `<strong>${escHtml(c.name)}</strong>${badge}`,
+    c.address ? escHtml(c.address) : null,
+    c.hours   ? escHtml(c.hours)   : null,
+    c.phone   ? escHtml(c.phone)   : null,
+    reportBtnHtml(c.name),
+  ].filter(Boolean).join('<br>');
+}
+
 function getMatchedCenters() {
   const source = liveCenters !== null ? liveCenters : centers;
   const itemData = ITEMS.find((i) => i.id === state.item);
@@ -279,14 +328,15 @@ function renderCenterList(matched) {
       ${matched.map((c) => `
         <li class="center-item">
           <div class="center-top">
-            <span class="center-name">${c.name}</span>
-            <span class="center-type-badge">${c.centerType}</span>
+            <span class="center-name">${escHtml(c.name)}${c.origin === 'report' ? '<span class="center-report-badge">제보</span>' : ''}</span>
+            <span class="center-type-badge">${escHtml(c.centerType || '')}</span>
           </div>
-          <p class="center-addr">${c.address}</p>
-          ${c.detail ? `<p class="center-loc">${c.detail}</p>` : ''}
-          ${c.hours  ? `<p class="center-detail">${c.hours}</p>` : ''}
-          ${c.phone  ? `<p class="center-detail">${c.phone}</p>` : ''}
-          ${c.note   ? `<p class="center-note">${c.note}</p>`    : ''}
+          <p class="center-addr">${escHtml(c.address || '')}</p>
+          ${c.detail ? `<p class="center-loc">${escHtml(c.detail)}</p>` : ''}
+          ${c.hours  ? `<p class="center-detail">${escHtml(c.hours)}</p>` : ''}
+          ${c.phone  ? `<p class="center-detail">${escHtml(c.phone)}</p>` : ''}
+          ${c.note   ? `<p class="center-note">${escHtml(c.note)}</p>`    : ''}
+          ${reportBtnHtml(c.name)}
         </li>
       `).join('')}
     </ul>
@@ -554,14 +604,6 @@ function initProReuseMap() {
   const coords  = matched.filter((c) => c.lat && c.lng && !isNaN(Number(c.lat)));
   if (coords.length === 0) return;
 
-  const pinkIcon = L.divIcon({
-    className: '',
-    html: '<div style="width:14px;height:14px;background:#D20565;border:2px solid #fff;border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,.35);"></div>',
-    iconSize:    [14, 14],
-    iconAnchor:  [7, 7],
-    popupAnchor: [0, -10],
-  });
-
   const map = L.map(mapEl, { scrollWheelZoom: false });
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -570,13 +612,9 @@ function initProReuseMap() {
   }).addTo(map);
 
   coords.forEach((c) => {
-    const popup = [
-      `<strong>${c.name}</strong>`,
-      c.address,
-      c.hours,
-      c.phone,
-    ].filter(Boolean).join('<br>');
-    L.marker([Number(c.lat), Number(c.lng)], { icon: pinkIcon }).addTo(map).bindPopup(popup);
+    L.marker([Number(c.lat), Number(c.lng)], { icon: makeMarkerIcon(c.origin) })
+      .addTo(map)
+      .bindPopup(centerPopupHtml(c), { minWidth: 160 });
   });
 
   if (coords.length === 1) {
@@ -828,13 +866,9 @@ function initMapIfPresent() {
   }).addTo(map);
 
   coords.forEach((c) => {
-    const lines = [
-      `<strong>${c.name}</strong>`,
-      c.address,
-      c.detail,
-      c.hours,
-    ].filter(Boolean).join('<br>');
-    L.marker([Number(c.lat), Number(c.lng)]).addTo(map).bindPopup(lines);
+    L.marker([Number(c.lat), Number(c.lng)], { icon: makeMarkerIcon(c.origin) })
+      .addTo(map)
+      .bindPopup(centerPopupHtml(c), { minWidth: 160 });
   });
 }
 
@@ -940,28 +974,20 @@ function sheetVal(map, raw, field) {
 
 /* ── CSV 거점 로더 ── */
 
-async function loadCenters() {
-  if (typeof sheetCsvUrl === 'undefined' || !sheetCsvUrl) {
-    liveCenters = [...centers]; // data.js 그대로 사용
-    return;
-  }
-
+async function loadReportCenters() {
+  if (typeof reportCsvUrl === 'undefined' || !reportCsvUrl) return [];
   try {
-    const res = await fetch(sheetCsvUrl);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const res = await fetch(reportCsvUrl);
+    if (!res.ok) return [];
     const csv = await res.text();
-
     const parsed = Papa.parse(csv, {
       header: true,
       skipEmptyLines: true,
       transformHeader: (h) => h.replace(/^﻿/, '').replace(/\s*\*+\s*$/, '').trim(),
     });
-
-    // BOM 제거 헬퍼 (구글 시트 CSV 첫 헤더에 BOM이 붙는 경우 대응)
     const col = (row, key) =>
       (row[key] ?? row['﻿' + key] ?? '').toString().trim();
-
-    liveCenters = parsed.data
+    return parsed.data
       .filter((row) => {
         const name = col(row, '기관·거점명');
         return name && !name.includes('예시') && !name.includes('(예시)');
@@ -983,7 +1009,61 @@ async function loadCenters() {
         source:     col(row, '출처유형'),
         sourceUrl:  col(row, '출처'),
         checkedAt:  col(row, '확인일'),
+        origin:     'report',
       }));
+  } catch {
+    return [];
+  }
+}
+
+async function loadCenters() {
+  if (typeof sheetCsvUrl === 'undefined' || !sheetCsvUrl) {
+    liveCenters = [...centers]; // data.js 그대로 사용
+    return;
+  }
+
+  try {
+    const res = await fetch(sheetCsvUrl);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const csv = await res.text();
+
+    const parsed = Papa.parse(csv, {
+      header: true,
+      skipEmptyLines: true,
+      transformHeader: (h) => h.replace(/^﻿/, '').replace(/\s*\*+\s*$/, '').trim(),
+    });
+
+    // BOM 제거 헬퍼 (구글 시트 CSV 첫 헤더에 BOM이 붙는 경우 대응)
+    const col = (row, key) =>
+      (row[key] ?? row['﻿' + key] ?? '').toString().trim();
+
+    const confirmed = parsed.data
+      .filter((row) => {
+        const name = col(row, '기관·거점명');
+        return name && !name.includes('예시') && !name.includes('(예시)');
+      })
+      .map((row) => ({
+        name:       col(row, '기관·거점명'),
+        category:   sheetVal(SHEET_CATEGORY_MAP, col(row, '카테고리'), '카테고리'),
+        centerType: col(row, '거점유형'),
+        route:      sheetVal(SHEET_ROUTE_MAP, col(row, '경로유형'), '경로유형'),
+        address:    col(row, '도로명주소'),
+        detail:     col(row, '상세 위치'),
+        lat:        parseFloat(col(row, '위도'))  || null,
+        lng:        parseFloat(col(row, '경도'))  || null,
+        hours:      col(row, '운영시간'),
+        phone:      col(row, '연락처'),
+        items:      col(row, '취급·수리 가능 항목')
+                      .split(',').map((s) => sheetVal(SHEET_CATEGORY_MAP, s.trim(), '카테고리')).filter(Boolean),
+        note:       col(row, '이용조건·비고'),
+        source:     col(row, '출처유형'),
+        sourceUrl:  col(row, '출처'),
+        checkedAt:  col(row, '확인일'),
+        origin:     'confirmed',
+      }));
+
+    const reported = await loadReportCenters();
+    liveCenters = [...confirmed, ...reported];
   } catch (err) {
     console.warn('[loadCenters] CSV 로드 실패 → data.js centers 사용:', err);
     liveCenters = [...centers]; // data.js 폴백

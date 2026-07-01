@@ -14,6 +14,14 @@ const classifyEndpoint = '/api/classify';
 // 거점 정보 구글 시트 CSV. 비워두면 data.js의 centers 배열을 그대로 사용.
 const sheetCsvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQrpNOwZTG7w5uUUfjqrBBJVNq3ZLupg4dZ7i7CbTwXFbih7oMTsFtPPivzExY2BcpD16bu8_EZaqGa/pub?gid=528619496&single=true&output=csv';
 
+// 제보 거점 구글폼 응답 시트 CSV. 비워두면 제보 거점은 표시되지 않음.
+// 예: 'https://docs.google.com/spreadsheets/d/e/FORM_RESPONSE_SHEET_ID/pub?gid=0&single=true&output=csv'
+const reportCsvUrl = '';
+
+// 거점 신고용 구글폼 URL (거점명이 prefill됨). 비워두면 신고 버튼이 표시되지 않음.
+// 예: 'https://docs.google.com/forms/d/e/FORM_ID/viewform?usp=pp_url&entry.FIELD_ID='
+const reportFormUrl = '';
+
 /**
  * 사용자 자유 텍스트를 서버리스 프록시로 보내 { item, state } 로 분류받습니다.
  * endpoint가 비어 있거나 오류 시 null 반환 → 호출자가 폴백 처리.
