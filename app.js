@@ -536,7 +536,9 @@ function renderSelf() {
 
   let guideContent;
   if (!guide) {
-    guideContent = '<p class="empty-state">수리 방법 준비 중</p>';
+    guideContent = REPAIR_GUIDE_MAP[state.condition]
+      ? `<button class="btn-guide" onclick="openRepairModal(state.condition)">수선 방법 보기</button>`
+      : '<p class="empty-state">수리 방법 준비 중</p>';
   } else if (guide.type === 'youtube') {
     const cautionsHtml = guide.cautions.length > 0
       ? `<ul class="caution-list">${guide.cautions.map((c) => `<li>${c}</li>`).join('')}</ul>`
@@ -629,7 +631,9 @@ function renderPro() {
     `${state.condition} — 수리 전문점에 맡겨 보세요.`,
     `<div class="content-section">
       <h2 class="section-title">수리 안내</h2>
-      <p class="empty-state">내용 준비 중</p>
+      ${REPAIR_GUIDE_MAP[state.condition]
+        ? `<button class="btn-guide" onclick="openRepairModal(state.condition)">수선 방법 보기</button>`
+        : '<p class="empty-state">내용 준비 중</p>'}
     </div>
     <div class="content-section">
       <h2 class="section-title">근처 거점</h2>
@@ -909,6 +913,137 @@ function renderRecycle() {
   const view = state.resultView || 'hub';
   if (view === 'hub') return renderRecycleHub();
   return renderRecycleDetail(view);
+}
+
+/* ── 수선 가이드 모달 ── */
+
+const REPAIR_GUIDE_MAP = {
+  '단추 떨어짐':  { key: 'button', title: '단추 달기 가이드',    count: 7 },
+  '솔기 터짐':    { key: 'seam',   title: '솔기 수선 가이드',    count: 8 },
+  '기장·품 수선': { key: 'hem',    title: '기장·품 수선 가이드', count: 7 },
+  '지퍼 고장':    { key: 'zipper', title: '지퍼 수리 가이드',    tabs: [
+    { id: '1탄', label: '1탄', count: 6 },
+    { id: '2탄', label: '2탄', count: 0 },
+    { id: '3탄', label: '3탄', count: 7 },
+  ]},
+};
+
+const _rm = { images: [], idx: 0, touchStartX: 0 };
+
+function _rmGetImages(key, tabId) {
+  if (key === 'zipper') {
+    const tab = REPAIR_GUIDE_MAP['지퍼 고장'].tabs.find((t) => t.id === tabId);
+    if (!tab || tab.count === 0) return [];
+    return Array.from({ length: tab.count }, (_, i) =>
+      `assets/repair-guide/zipper/${tabId}/${i + 1}.jpg`
+    );
+  }
+  const guide = Object.values(REPAIR_GUIDE_MAP).find((g) => g.key === key);
+  if (!guide || !guide.count) return [];
+  return Array.from({ length: guide.count }, (_, i) =>
+    `assets/repair-guide/${key}/${i + 1}.jpg`
+  );
+}
+
+function openRepairModal(condition) {
+  const guide = REPAIR_GUIDE_MAP[condition];
+  if (!guide) return;
+  const isZipper = guide.key === 'zipper';
+
+  document.getElementById('rm-title').textContent = guide.title;
+
+  const tabsEl = document.getElementById('rm-tabs');
+  if (isZipper) {
+    tabsEl.style.display = '';
+    tabsEl.innerHTML = guide.tabs.map((t) => {
+      const disabled = t.count === 0;
+      const isFirst  = t.id === '1탄';
+      return `<button
+        class="repair-tab${isFirst ? ' active' : ''}"
+        id="rm-tab-${t.id}"
+        ${disabled ? 'disabled' : `onclick="switchZipperTab('${t.id}')"`}
+        aria-selected="${isFirst}"
+      >${t.label}${disabled ? '<span class="repair-tab-badge">준비중</span>' : ''}</button>`;
+    }).join('');
+    _rmLoad(guide.key, '1탄');
+  } else {
+    tabsEl.style.display = 'none';
+    tabsEl.innerHTML = '';
+    _rmLoad(guide.key, null);
+  }
+
+  document.getElementById('repair-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  _rmBindTouch();
+}
+
+function closeRepairModal() {
+  document.getElementById('repair-modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function _rmLoad(key, tabId) {
+  _rm.images = _rmGetImages(key, tabId);
+  _rm.idx = 0;
+  _rmRender();
+}
+
+function _rmRender() {
+  const track = document.getElementById('rm-track');
+  const dots  = document.getElementById('rm-dots');
+  const count = document.getElementById('rm-count');
+  const prev  = document.getElementById('rm-prev');
+  const next  = document.getElementById('rm-next');
+  if (!track) return;
+
+  const total = _rm.images.length;
+  const idx   = _rm.idx;
+
+  track.innerHTML = _rm.images.map((src, i) =>
+    `<div class="carousel-slide"><img src="${escHtml(src)}" alt="수선 가이드 ${i + 1}장" loading="lazy" draggable="false"></div>`
+  ).join('');
+  track.style.transform = `translateX(-${idx * 100}%)`;
+
+  dots.innerHTML = _rm.images.map((_, i) =>
+    `<span class="carousel-dot${i === idx ? ' active' : ''}" onclick="carouselGoTo(${i})"></span>`
+  ).join('');
+
+  count.textContent = total > 0 ? `${idx + 1} / ${total}` : '';
+  if (prev) prev.disabled = idx === 0;
+  if (next) next.disabled = idx === total - 1;
+}
+
+function carouselGoTo(i) {
+  if (i < 0 || i >= _rm.images.length) return;
+  _rm.idx = i;
+  _rmRender();
+}
+
+function carouselPrev() { carouselGoTo(_rm.idx - 1); }
+function carouselNext() { carouselGoTo(_rm.idx + 1); }
+
+function switchZipperTab(tabId) {
+  REPAIR_GUIDE_MAP['지퍼 고장'].tabs.forEach((t) => {
+    const el = document.getElementById(`rm-tab-${t.id}`);
+    if (!el) return;
+    const active = t.id === tabId;
+    el.classList.toggle('active', active);
+    el.setAttribute('aria-selected', active);
+  });
+  _rmLoad('zipper', tabId);
+}
+
+function _rmBindTouch() {
+  const wrap = document.getElementById('rm-carousel-wrap');
+  if (!wrap || wrap._rmTouchBound) return;
+  wrap._rmTouchBound = true;
+  wrap.addEventListener('touchstart', (e) => {
+    _rm.touchStartX = e.touches[0].clientX;
+  }, { passive: true });
+  wrap.addEventListener('touchend', (e) => {
+    const dx = e.changedTouches[0].clientX - _rm.touchStartX;
+    if (Math.abs(dx) > 40) { if (dx < 0) carouselNext(); else carouselPrev(); }
+  }, { passive: true });
 }
 
 /* ── 빈 핸들러 (추후 연결) ── */

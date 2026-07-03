@@ -973,6 +973,203 @@
     }
 
     .source-link:hover { color: #6b7280; text-decoration: underline; }
+
+    /* ── 수선 가이드 버튼 ── */
+    .btn-guide {
+      display: block;
+      width: 100%;
+      padding: 13px;
+      background: #D20565;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      transition: background-color 0.15s;
+    }
+    .btn-guide:hover { background: #b8044f; }
+
+    /* ── 수선 가이드 모달 오버레이 ── */
+    .repair-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    .repair-modal.open { display: flex; }
+
+    .repair-modal-inner {
+      background: #fff;
+      border-radius: 16px;
+      width: min(92vw, 420px);
+      max-height: 90dvh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    }
+    @media (prefers-color-scheme: dark) {
+      .repair-modal-inner { background: #1f2937; color: #f9fafb; }
+    }
+    :root[data-theme="dark"] .repair-modal-inner { background: #1f2937; color: #f9fafb; }
+    :root[data-theme="light"] .repair-modal-inner { background: #fff; color: inherit; }
+
+    .repair-modal-header {
+      display: flex;
+      align-items: center;
+      padding: 14px 16px 10px;
+      flex-shrink: 0;
+    }
+    .repair-modal-title {
+      flex: 1;
+      font-size: 15px;
+      font-weight: 700;
+    }
+    .repair-modal-close {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      font-size: 20px;
+      line-height: 1;
+      cursor: pointer;
+      color: #9ca3af;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .repair-modal-close:hover { background: #f3f4f6; }
+    @media (prefers-color-scheme: dark) {
+      .repair-modal-close:hover { background: #374151; }
+    }
+    :root[data-theme="dark"] .repair-modal-close:hover { background: #374151; }
+
+    /* ── 지퍼 탭 ── */
+    .repair-tabs {
+      display: flex;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 0 12px;
+      flex-shrink: 0;
+    }
+    @media (prefers-color-scheme: dark) {
+      .repair-tabs { border-color: #374151; }
+    }
+    :root[data-theme="dark"] .repair-tabs { border-color: #374151; }
+    .repair-tab {
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #9ca3af;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      border-bottom: 2.5px solid transparent;
+      margin-bottom: -1px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .repair-tab.active { color: #D20565; border-bottom-color: #D20565; }
+    .repair-tab:disabled { cursor: not-allowed; opacity: 0.55; }
+    .repair-tab-badge {
+      font-size: 10px;
+      font-weight: 700;
+      color: #D20565;
+      background: #fce7f3;
+      border-radius: 4px;
+      padding: 1px 5px;
+    }
+
+    /* ── 캐러셀 ── */
+    .carousel-wrap {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+      min-height: 0;
+      background: #000;
+    }
+    .carousel-viewport { overflow: hidden; width: 100%; height: 100%; }
+    .carousel-track {
+      display: flex;
+      height: 100%;
+      will-change: transform;
+      transition: transform 0.25s ease;
+    }
+    .carousel-slide {
+      flex: 0 0 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .carousel-slide img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      display: block;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+    .carousel-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 2;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255,255,255,0.88);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.22);
+      font-size: 22px;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #374151;
+      transition: opacity 0.15s;
+    }
+    .carousel-btn:disabled { opacity: 0.18; cursor: default; pointer-events: none; }
+    .carousel-btn--prev { left: 8px; }
+    .carousel-btn--next { right: 8px; }
+
+    /* ── 하단 인디케이터 ── */
+    .carousel-footer {
+      padding: 10px 16px 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 7px;
+      flex-shrink: 0;
+    }
+    .carousel-dots {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 100%;
+    }
+    .carousel-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #e5e7eb;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.15s;
+      flex-shrink: 0;
+    }
+    .carousel-dot.active { background: #D20565; transform: scale(1.35); }
+    .carousel-count {
+      font-size: 12px;
+      color: #9ca3af;
+      font-weight: 600;
+    }
   </style>
 </head>
 <body>
@@ -994,6 +1191,29 @@
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <!-- 수선 가이드 모달 -->
+  <div id="repair-modal" class="repair-modal" role="dialog" aria-modal="true" aria-labelledby="rm-title"
+       onclick="if(event.target===this)closeRepairModal()">
+    <div class="repair-modal-inner">
+      <div class="repair-modal-header">
+        <span class="repair-modal-title" id="rm-title"></span>
+        <button class="repair-modal-close" onclick="closeRepairModal()" aria-label="닫기">✕</button>
+      </div>
+      <div class="repair-tabs" id="rm-tabs" style="display:none;"></div>
+      <div class="carousel-wrap" id="rm-carousel-wrap">
+        <div class="carousel-viewport">
+          <div class="carousel-track" id="rm-track"></div>
+        </div>
+        <button class="carousel-btn carousel-btn--prev" id="rm-prev" onclick="carouselPrev()" aria-label="이전">‹</button>
+        <button class="carousel-btn carousel-btn--next" id="rm-next" onclick="carouselNext()" aria-label="다음">›</button>
+      </div>
+      <div class="carousel-footer">
+        <div class="carousel-dots" id="rm-dots"></div>
+        <span class="carousel-count" id="rm-count"></span>
+      </div>
+    </div>
+  </div>
+
   <script src="data.js"></script>
   <script src="config.js"></script>
   <script src="app.js"></script>
