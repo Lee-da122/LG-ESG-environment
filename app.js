@@ -923,7 +923,7 @@ const REPAIR_GUIDE_MAP = {
   '기장·품 수선': { key: 'hem',    title: '기장·품 수선 가이드', count: 7 },
   '지퍼 고장':    { key: 'zipper', title: '지퍼 수리 가이드',    tabs: [
     { id: '1탄', label: '1탄', count: 6 },
-    { id: '2탄', label: '2탄', count: 0 },
+    { id: '2탄', label: '2탄', count: 5 },
     { id: '3탄', label: '3탄', count: 7 },
   ]},
 };
