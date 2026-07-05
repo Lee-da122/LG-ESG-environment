@@ -9,7 +9,7 @@
  */
 
 const GEMINI_URL =
-  'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent';
+  'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent';
 
 const MAX_TEXT_LEN     = 500;
 const MAX_STATES       = 20;    // 상태 항목 최대 개수 (남용 방지)
