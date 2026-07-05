@@ -333,25 +333,50 @@
       line-height: 1;
     }
 
-    /* ── 라이트박스 ── */
+    /* ── 웹툰 보기 버튼 ── */
+    .wt-btn-view {
+      display: block;
+      width: 100%;
+      padding: 13px;
+      margin-bottom: 14px;
+      background: #D20565;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      transition: background-color 0.15s;
+    }
+    .wt-btn-view:hover { background: #b8044f; }
+
+    /* ── 라이트박스 (캐러셀) ── */
     .wt-lightbox {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.88);
+      background: rgba(0, 0, 0, 0.92);
       z-index: 2000;
       align-items: center;
       justify-content: center;
-      cursor: zoom-out;
     }
     .wt-lightbox.open { display: flex; }
-    .wt-lightbox img {
-      max-width: min(92vw, 520px);
-      max-height: 90dvh;
+    .wt-lb-stage {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      max-width: min(76vw, 460px);
+      max-height: 82dvh;
+    }
+    .wt-lb-stage img {
+      max-width: 100%;
+      max-height: 82dvh;
       object-fit: contain;
       border-radius: 10px;
-      pointer-events: none;
       box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+      display: block;
+      pointer-events: none;
     }
     .wt-lb-close {
       position: absolute;
@@ -369,7 +394,43 @@
       align-items: center;
       justify-content: center;
     }
-    .wt-lb-close:hover { background: rgba(255, 255, 255, 0.25); }
+    .wt-lb-close:hover { background: rgba(255, 255, 255, 0.28); }
+    .wt-lb-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 1;
+      width: 44px;
+      height: 44px;
+      background: rgba(255, 255, 255, 0.15);
+      border: none;
+      border-radius: 50%;
+      color: #fff;
+      font-size: 30px;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s;
+    }
+    .wt-lb-nav:hover { background: rgba(255, 255, 255, 0.28); }
+    .wt-lb-nav:disabled { opacity: 0.18; cursor: default; pointer-events: none; }
+    .wt-lb-prev { left: 10px; }
+    .wt-lb-next { right: 10px; }
+    .wt-lb-counter {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 13px;
+      font-weight: 600;
+      background: rgba(0, 0, 0, 0.45);
+      padding: 4px 14px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 </head>
@@ -502,6 +563,7 @@
           <!-- 웹툰 섹션 -->
           <div class="wt-section">
             <div class="wt-section-title">우산 하나로 보는 순환경제</div>
+            <button class="wt-btn-view" onclick="openWebtoon(1)">웹툰 보기</button>
             <div class="wt-grid">
               <div class="wt-panel" onclick="openWebtoon(1)">
                 <img src="assets/umbrella_webtoon_panels/webtoon_panel_01.png" alt="웹툰 1컷" loading="lazy">
@@ -671,10 +733,15 @@
     </div>
   </footer>
 
-  <!-- 웹툰 라이트박스 -->
-  <div id="wt-lightbox" class="wt-lightbox" onclick="closeWebtoon()" role="dialog" aria-modal="true" aria-label="웹툰 확대보기">
+  <!-- 웹툰 라이트박스 (캐러셀) -->
+  <div id="wt-lightbox" class="wt-lightbox" onclick="if(event.target===this)closeWebtoon()" role="dialog" aria-modal="true" aria-label="웹툰 확대보기">
     <button class="wt-lb-close" onclick="closeWebtoon()" aria-label="닫기">✕</button>
-    <img id="wt-lb-img" src="" alt="">
+    <button class="wt-lb-nav wt-lb-prev" id="wt-prev" onclick="wtPrev()" aria-label="이전 컷">&#8249;</button>
+    <div class="wt-lb-stage">
+      <img id="wt-lb-img" src="" alt="">
+    </div>
+    <button class="wt-lb-nav wt-lb-next" id="wt-next" onclick="wtNext()" aria-label="다음 컷">&#8250;</button>
+    <div class="wt-lb-counter" id="wt-counter">1 / 8</div>
   </div>
 
   <script>
@@ -693,11 +760,24 @@
       }
     }
 
-    function openWebtoon(n) {
+    var _wtIdx = 0;
+    var _WT_TOTAL = 8;
+    var _wtTouchX = 0;
+
+    function _wtRender() {
+      var n = _wtIdx + 1;
       var num = String(n).padStart(2, '0');
       var img = document.getElementById('wt-lb-img');
       img.src = 'assets/umbrella_webtoon_panels/webtoon_panel_' + num + '.png';
       img.alt = '웹툰 ' + n + '컷';
+      document.getElementById('wt-counter').textContent = n + ' / ' + _WT_TOTAL;
+      document.getElementById('wt-prev').disabled = (_wtIdx === 0);
+      document.getElementById('wt-next').disabled = (_wtIdx === _WT_TOTAL - 1);
+    }
+
+    function openWebtoon(n) {
+      _wtIdx = Math.max(0, Math.min(_WT_TOTAL - 1, (n || 1) - 1));
+      _wtRender();
       document.getElementById('wt-lightbox').classList.add('open');
       document.body.style.overflow = 'hidden';
     }
@@ -707,9 +787,28 @@
       document.body.style.overflow = '';
     }
 
+    function wtPrev() { if (_wtIdx > 0) { _wtIdx--; _wtRender(); } }
+    function wtNext() { if (_wtIdx < _WT_TOTAL - 1) { _wtIdx++; _wtRender(); } }
+
     document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') closeWebtoon();
+      var lb = document.getElementById('wt-lightbox');
+      if (!lb || !lb.classList.contains('open')) return;
+      if (e.key === 'Escape')      closeWebtoon();
+      if (e.key === 'ArrowLeft')   wtPrev();
+      if (e.key === 'ArrowRight')  wtNext();
     });
+
+    (function() {
+      var lb = document.getElementById('wt-lightbox');
+      if (!lb) return;
+      lb.addEventListener('touchstart', function(e) {
+        _wtTouchX = e.touches[0].clientX;
+      }, { passive: true });
+      lb.addEventListener('touchend', function(e) {
+        var dx = e.changedTouches[0].clientX - _wtTouchX;
+        if (Math.abs(dx) > 40) { if (dx < 0) wtNext(); else wtPrev(); }
+      }, { passive: true });
+    })();
   </script>
 </body>
 </html>
