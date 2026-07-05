@@ -1160,7 +1160,7 @@ async function loadReportCenters() {
                       .split(',').map((s) => sheetVal(SHEET_CATEGORY_MAP, s.trim(), '카테고리')).filter(Boolean),
         note:       col(row, '이용조건·비고'),
         source:     col(row, '출처유형'),
-        sourceUrl:  col(row, '출처'),
+        sourceUrl:  col(row, '출처 링크/메모'),
         checkedAt:  col(row, '확인일'),
         origin:     'report',
       }));
@@ -1210,7 +1210,7 @@ async function loadCenters() {
                       .split(',').map((s) => sheetVal(SHEET_CATEGORY_MAP, s.trim(), '카테고리')).filter(Boolean),
         note:       col(row, '이용조건·비고'),
         source:     col(row, '출처유형'),
-        sourceUrl:  col(row, '출처'),
+        sourceUrl:  col(row, '출처 링크/메모'),
         checkedAt:  col(row, '확인일'),
         origin:     'confirmed',
       }));
