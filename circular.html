@@ -101,7 +101,8 @@
     /* ── 탭 1 콘텐츠 ── */
 
     #tab-what,
-    #tab-lg {
+    #tab-lg,
+    #tab-battery {
       text-align: left;
       color: #374151;
       padding-top: 0;
@@ -455,6 +456,7 @@
         <div class="ce-tabs" role="tablist">
           <button class="ce-tab active" role="tab" onclick="switchTab('what')">순환경제란?</button>
           <button class="ce-tab"        role="tab" onclick="switchTab('lg')">LG전자는?</button>
+          <button class="ce-tab"        role="tab" onclick="switchTab('battery')">배터리턴이란?</button>
           <button class="ce-tab"        role="tab" onclick="switchTab('cases')">다른 기업 사례</button>
         </div>
 
@@ -688,6 +690,67 @@
           };
         })();
         </script>
+        <div id="tab-battery" class="ce-panel hidden">
+          <div style="padding:0.25rem 0;">
+
+            <div style="margin-bottom:0.75rem;">
+              <div style="display:inline-block; font-size:12px; font-weight:500; color:#A50034; border:1px solid #A50034; border-radius:6px; padding:2px 8px; margin-bottom:8px;">LG전자</div>
+              <h3 style="margin:0 0 8px; color:#D20565;">배터리턴이란?</h3>
+              <p style="font-size:14px; color:#52514e; margin:0; line-height:1.7;">다 쓴 청소기 배터리를 반납하면 할인 혜택도 받고, 희유금속도 재생산되고, 기부까지 이어지는 LG전자의 자원순환 캠페인.</p>
+            </div>
+
+            <img src="assets/battery-turn-campaign.png" alt="배터리턴 캠페인 이미지" style="width:100%; border-radius:10px; margin-bottom:20px; display:block; object-fit:cover; max-height:240px;">
+
+            <div style="display:flex; flex-direction:column; gap:14px;">
+
+              <div style="background:#fff; border:0.5px solid #e1e0d9; border-radius:12px; padding:1.25rem;">
+                <div style="font-size:12px; color:#898781; font-weight:500; margin-bottom:4px;">참여 방법</div>
+                <div style="font-size:17px; font-weight:700; color:#D20565; margin-bottom:10px;">어떻게 참여하나요?</div>
+                <ul style="margin:0; padding-left:18px; font-size:14px; color:#52514e; line-height:1.9;">
+                  <li>제조사 상관없이 다 쓴 청소기 폐배터리 반납 가능</li>
+                  <li>LG전자 서비스센터 방문 또는 온라인(LGE.COM) 신청 후 폐가전 수거함 이용</li>
+                  <li>반납하면 새 배터리 구매 시 최대 4만원 할인</li>
+                </ul>
+              </div>
+
+              <div style="background:#fff; border:0.5px solid #e1e0d9; border-radius:12px; padding:1.25rem;">
+                <div style="font-size:12px; color:#898781; font-weight:500; margin-bottom:4px;">자원 재생</div>
+                <div style="font-size:17px; font-weight:700; color:#D20565; margin-bottom:10px;">반납된 배터리는 어떻게 되나요?</div>
+                <p style="font-size:14px; color:#52514e; margin:0; line-height:1.8;">분해 과정을 거쳐 니켈, 코발트, 리튬, 망간 같은 희유금속으로 재탄생해요.</p>
+              </div>
+
+              <div style="background:#fff; border:0.5px solid #e1e0d9; border-radius:12px; padding:1.25rem;">
+                <div style="font-size:12px; color:#898781; font-weight:500; margin-bottom:4px;">캠페인 성과</div>
+                <div style="font-size:17px; font-weight:700; color:#D20565; margin-bottom:12px;">지금까지의 성과</div>
+                <div style="display:flex; flex-direction:column; gap:10px;">
+                  <div style="background:#f3f4f2; border-radius:8px; padding:0.9rem;">
+                    <div style="font-size:22px; font-weight:500; color:#D20565;">17만여<span style="font-size:14px; font-weight:400;"> 명</span></div>
+                    <div style="font-size:12px; color:#898781; margin-top:2px;">누적 참여 고객</div>
+                  </div>
+                  <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                    <div style="background:#f3f4f2; border-radius:8px; padding:0.9rem;">
+                      <div style="font-size:22px; font-weight:500; color:#D20565;">28만여<span style="font-size:14px; font-weight:400;"> 개</span></div>
+                      <div style="font-size:12px; color:#898781; margin-top:2px;">수거된 폐배터리<br>(약 128톤)</div>
+                    </div>
+                    <div style="background:#f3f4f2; border-radius:8px; padding:0.9rem;">
+                      <div style="font-size:22px; font-weight:500; color:#D20565;">11톤<span style="font-size:14px; font-weight:400;"> 이상</span></div>
+                      <div style="font-size:12px; color:#898781; margin-top:2px;">재생산된<br>희유금속</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div style="border:1.5px solid #D20565; border-radius:8px; padding:1rem 1.25rem;">
+                <div style="font-size:13px; font-weight:700; color:#D20565; margin-bottom:4px;">사회공헌까지</div>
+                <p style="margin:0; font-size:14px; line-height:1.7; color:#374151;">캠페인으로 조성된 기금 일부는 아동복지시설 지원에도 쓰이고 있어요.</p>
+              </div>
+
+            </div>
+
+            <p style="font-size:12px; color:#898781; margin-top:14px;">출처: LG전자 뉴스룸, 2026.05.18</p>
+          </div>
+        </div>
+
         <div id="tab-cases" class="ce-panel hidden">
           <div style="padding:0.5rem 0;">
             <div style="margin-bottom:1.25rem;">
@@ -745,7 +808,7 @@
   </div>
 
   <script>
-    const TABS = ['what', 'lg', 'cases'];
+    const TABS = ['what', 'lg', 'battery', 'cases'];
 
     function switchTab(name) {
       TABS.forEach(function(id) {
