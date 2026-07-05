@@ -291,11 +291,16 @@ function centerPopupHtml(c) {
   const badge = c.origin === 'report'
     ? ' <span style="font-size:10px;font-weight:700;color:#D20565;border:1px solid #D20565;border-radius:3px;padding:1px 4px;vertical-align:middle;">제보</span>'
     : '';
+  const sourceLink = c.sourceUrl
+    ? `<a href="${escHtml(c.sourceUrl)}" target="_blank" rel="noopener noreferrer"
+         style="color:#D20565;text-decoration:underline;">${escHtml(c.source || '출처')}</a>`
+    : null;
   return [
     `<strong>${escHtml(c.name)}</strong>${badge}`,
-    c.address ? escHtml(c.address) : null,
-    c.hours   ? escHtml(c.hours)   : null,
-    c.phone   ? escHtml(c.phone)   : null,
+    c.address  ? escHtml(c.address) : null,
+    c.hours    ? escHtml(c.hours)   : null,
+    c.phone    ? escHtml(c.phone)   : null,
+    sourceLink,
   ].filter(Boolean).join('<br>');
 }
 
