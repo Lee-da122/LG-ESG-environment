@@ -284,6 +284,92 @@
 
       .screen { min-height: 540px; }
     }
+
+    /* ── 웹툰 섹션 ── */
+    .wt-section {
+      margin-top: 28px;
+    }
+    .wt-section-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 14px;
+    }
+    .wt-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .wt-panel {
+      position: relative;
+      cursor: zoom-in;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #f3f4f2;
+      line-height: 0;
+      transition: opacity 0.15s;
+    }
+    .wt-panel:hover { opacity: 0.88; }
+    .wt-panel img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 8px;
+    }
+    .wt-num {
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      width: 20px;
+      height: 20px;
+      background: rgba(210, 5, 101, 0.82);
+      color: #fff;
+      border-radius: 50%;
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+
+    /* ── 라이트박스 ── */
+    .wt-lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.88);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      cursor: zoom-out;
+    }
+    .wt-lightbox.open { display: flex; }
+    .wt-lightbox img {
+      max-width: min(92vw, 520px);
+      max-height: 90dvh;
+      object-fit: contain;
+      border-radius: 10px;
+      pointer-events: none;
+      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+    }
+    .wt-lb-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 36px;
+      height: 36px;
+      background: rgba(255, 255, 255, 0.15);
+      border: none;
+      border-radius: 50%;
+      color: #fff;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .wt-lb-close:hover { background: rgba(255, 255, 255, 0.25); }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 </head>
@@ -412,6 +498,45 @@
 
           <p class="ce-source">출처: SAP Korea — 순환경제란 무엇인가 (세 원칙은 Ellen MacArthur Foundation 기반)<br>
             <a href="https://www.sap.com/korea/resources/circular-economy" target="_blank" rel="noopener">https://www.sap.com/korea/resources/circular-economy</a></p>
+
+          <!-- 웹툰 섹션 -->
+          <div class="wt-section">
+            <div class="wt-section-title">우산 하나로 보는 순환경제</div>
+            <div class="wt-grid">
+              <div class="wt-panel" onclick="openWebtoon(1)">
+                <img src="assets/umbrella_webtoon_panels/webtoon_panel_01.png" alt="웹툰 1컷" loading="lazy">
+                <span class="wt-num" aria-hidden="true">1</span>
+              </div>
+              <div class="wt-panel" onclick="openWebtoon(2)">
+                <img src="assets/umbrella_webtoon_panels/webtoon_panel_02.png" alt="웹툰 2컷" loading="lazy">
+                <span class="wt-num" aria-hidden="true">2</span>
+              </div>
+              <div class="wt-panel" onclick="openWebtoon(3)">
+                <img src="assets/umbrella_webtoon_panels/webtoon_panel_03.png" alt="웹툰 3컷" loading="lazy">
+                <span class="wt-num" aria-hidden="true">3</span>
+              </div>
+              <div class="wt-panel" onclick="openWebtoon(4)">
+                <img src="assets/umbrella_webtoon_panels/webtoon_panel_04.png" alt="웹툰 4컷" loading="lazy">
+                <span class="wt-num" aria-hidden="true">4</span>
+              </div>
+              <div class="wt-panel" onclick="openWebtoon(5)">
+                <img src="assets/umbrella_webtoon_panels/webtoon_panel_05.png" alt="웹툰 5컷" loading="lazy">
+                <span class="wt-num" aria-hidden="true">5</span>
+              </div>
+              <div class="wt-panel" onclick="openWebtoon(6)">
+                <img src="assets/umbrella_webtoon_panels/webtoon_panel_06.png" alt="웹툰 6컷" loading="lazy">
+                <span class="wt-num" aria-hidden="true">6</span>
+              </div>
+              <div class="wt-panel" onclick="openWebtoon(7)">
+                <img src="assets/umbrella_webtoon_panels/webtoon_panel_07.png" alt="웹툰 7컷" loading="lazy">
+                <span class="wt-num" aria-hidden="true">7</span>
+              </div>
+              <div class="wt-panel" onclick="openWebtoon(8)">
+                <img src="assets/umbrella_webtoon_panels/webtoon_panel_08.png" alt="웹툰 8컷" loading="lazy">
+                <span class="wt-num" aria-hidden="true">8</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div id="tab-lg" class="ce-panel hidden">
@@ -546,6 +671,12 @@
     </div>
   </footer>
 
+  <!-- 웹툰 라이트박스 -->
+  <div id="wt-lightbox" class="wt-lightbox" onclick="closeWebtoon()" role="dialog" aria-modal="true" aria-label="웹툰 확대보기">
+    <button class="wt-lb-close" onclick="closeWebtoon()" aria-label="닫기">✕</button>
+    <img id="wt-lb-img" src="" alt="">
+  </div>
+
   <script>
     const TABS = ['what', 'lg', 'cases'];
 
@@ -561,6 +692,24 @@
         window.drawLgCharts();
       }
     }
+
+    function openWebtoon(n) {
+      var num = String(n).padStart(2, '0');
+      var img = document.getElementById('wt-lb-img');
+      img.src = 'assets/umbrella_webtoon_panels/webtoon_panel_' + num + '.png';
+      img.alt = '웹툰 ' + n + '컷';
+      document.getElementById('wt-lightbox').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeWebtoon() {
+      document.getElementById('wt-lightbox').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeWebtoon();
+    });
   </script>
 </body>
 </html>
