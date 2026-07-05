@@ -90,6 +90,66 @@ function renderHome() {
   `;
 }
 
+/* ── 키워드 매칭 폴백 ── */
+
+// 우선순위 순으로 정렬. 동사 어미는 어근만 기재해 부분 일치로 커버.
+// 공백은 매칭 전에 모두 제거하므로 "안 입다"→"안입다" 처리됨.
+const KEYWORD_RULES = [
+  // 우산 — 녹슴·곰팡이
+  {
+    item: 'umbrella', state: '녹슴·곰팡이',
+    re: /녹슬|녹이슬|녹이|곰팡이|냄새나|냄새난|삭다|삭았/,
+  },
+  // 우산 — 살대·천·손잡이 파손 (우산 특정 명칭)
+  {
+    item: 'umbrella', state: '살대·천·손잡이 파손',
+    re: /살대|우산살|뼈대|프레임|손잡이|핸들|방수천|우산천/,
+  },
+  // 우산 명시 + 파손 동사 (예: "우산이 찢어졌어요")
+  {
+    item: 'umbrella', state: '살대·천·손잡이 파손',
+    re: /우산.{0,8}(휘|부러|찌그|꺾|찢어|터졌|구멍)/,
+  },
+  // 의류 — 단추 떨어짐
+  {
+    item: 'clothing', state: '단추 떨어짐',
+    re: /단추/,
+  },
+  // 의류 — 지퍼 고장
+  {
+    item: 'clothing', state: '지퍼 고장',
+    re: /지퍼/,
+  },
+  // 의류 — 솔기 터짐
+  {
+    item: 'clothing', state: '솔기 터짐',
+    re: /솔기|시접/,
+  },
+  // 의류 — 기장·품 수선
+  {
+    item: 'clothing', state: '기장·품 수선',
+    re: /기장|밑단/,
+  },
+  // 의류 — 멀쩡하지만 안 입음
+  {
+    item: 'clothing', state: '멀쩡하지만 안 입음',
+    re: /안입|기부|나눔|새옷|깨끗|멀쩡/,
+  },
+  // 의류 — 오염·훼손 심함
+  {
+    item: 'clothing', state: '오염·훼손 심함',
+    re: /오염|훼손|얼룩|낡았|낡다|헤졌|헤지/,
+  },
+];
+
+function matchByKeyword(text) {
+  const t = text.replace(/\s+/g, '');
+  for (const rule of KEYWORD_RULES) {
+    if (rule.re.test(t)) return { item: rule.item, state: rule.state };
+  }
+  return null;
+}
+
 /* ── 자율 진단: AI 분류 후 결과로 바로 이동 ── */
 
 async function handleClassifySubmit() {
@@ -123,7 +183,22 @@ async function handleClassifySubmit() {
     }
   }
 
-  // 분류 실패 → 서버 메시지 우선, 없으면 기본 안내
+  // Gemini 실패 → 키워드 매칭 폴백
+  const kwResult = matchByKeyword(text);
+  if (kwResult) {
+    const itemData = ITEMS.find((i) => i.id === kwResult.item);
+    const condData = itemData && itemData.conditions.find((c) => c.label === kwResult.state);
+    if (condData) {
+      state.item       = kwResult.item;
+      state.condition  = kwResult.state;
+      state.route      = condData.route;
+      state.resultView = 'hub';
+      navigate('result');
+      return;
+    }
+  }
+
+  // 최종 실패 → 서버 메시지 우선, 없으면 기본 안내
   if (statusEl) {
     statusEl.textContent = (result && result.message)
       || '정확히 인식하지 못했어요. 아래에서 직접 선택해 주세요.';
