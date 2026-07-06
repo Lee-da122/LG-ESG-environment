@@ -2,8 +2,9 @@ const ITEMS = [
   {
     id: 'umbrella',
     label: '우산',
-    // ⚠️ TEMP: 임시 추정값(출처 미확정). KEITI 에코스퀘어로 교체 예정.
-    co2: { productionKg: 3.0, source: null },
+    // 원단(PET 패브릭 180g) 생산 CO2. 프레임·살 미포함. → UMBRELLA_FABRIC_PRODUCTION_CO2_KG
+    // 출처: CSES SVMR 제2호(2022.08) · 3.22 kgCO2eq/kg × 0.18 kg
+    co2: { productionKg: 0.58, source: 'CSES SVMR 제2호(2022)' },
     conditions: [
       { label: '살대·천·손잡이 파손', route: 'pro',
         conditions: [
@@ -19,8 +20,9 @@ const ITEMS = [
   {
     id: 'clothing',
     label: '의류·가방',
-    // ⚠️ TEMP: 임시 추정값(출처 미확정). KEITI 에코스퀘어로 교체 예정.
-    co2: { productionKg: 8.0, source: null },
+    // 생산단계(원단+봉제) CO2. 세탁·폐기 제외. → CLOTHING_PRODUCTION_CO2_KG
+    // 출처: Levi's "Life Cycle of a Jean" LCA(2015) · 14.5 kg CO2-e
+    co2: { productionKg: 14.5, source: 'Levi\'s LCA(2015)' },
     conditions: [
       { label: '단추 떨어짐',       route: 'self' },
       { label: '솔기 터짐',         route: 'self' },

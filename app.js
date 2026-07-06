@@ -416,6 +416,35 @@ function renderCenterList(matched) {
   `;
 }
 
+/* ── CO₂ 산출 기준 상수 ────────────────────────────────────────────────────────
+ * 의류 1벌 생산단계 CO2 (원단+원사 생산~재단/봉제/마감, 세탁·폐기 단계 제외)
+ * 출처: Levi Strauss & Co., "The Life Cycle of a Jean" LCA (2015)
+ *       Fiber 2.9 + Fabric assembly 9.0 + Cut·Sew·Finish 2.6 = 14.5 kg CO2-e
+ * 참고: 데님 기준 프록시 값. 전과정(세탁+폐기 포함) 기준은 33.4 kg
+ */
+const CLOTHING_PRODUCTION_CO2_KG = 14.5;
+
+/* 우산 원단(패브릭)만의 생산 CO2 (프레임/살 미포함)
+ * 계산: 원단 약 180 g × PET 원단위 3.22 kgCO2eq/kg = 0.58 kg
+ * 출처: 사회적가치연구원(CSES) SVMR 제2호 「플라스틱 패키징 감축의 사회적 가치」(2022.08)
+ * ⚠️ TODO: 우산살(금속) 생산 배출량 미포함. 전체 우산 값 아님을 UI에 명시.
+ */
+const UMBRELLA_FABRIC_PRODUCTION_CO2_KG = 0.58;
+
+/* 섬유 폐기물 소각 배출계수 (업사이클링 = 폐기 회피 배출량 계산용)
+ * 출처: IPCC 2006 Guidelines Vol.5 Ch.2 Table 2.4 (Textiles)
+ *       건조물함량 80% × 탄소함량 50% × 화석탄소비율 20~50% × 44/12
+ */
+const TEXTILE_INCINERATION_CO2_PER_KG_MIN = 0.29; // 화석탄소비율 기본값(20%) 적용
+const TEXTILE_INCINERATION_CO2_PER_KG_MAX = 0.73; // 화석탄소비율 최댓값(50%) 적용
+
+/* 섬유 폐기물 매립 관련 파라미터 (참고용; CH4 배출이므로 CO2 직접 환산 아님)
+ * 출처: IPCC 2006 Guidelines Vol.5 Table 2.4 / Ch.3
+ */
+const TEXTILE_LANDFILL_DOC  = 0.24; // 건조폐기물 대비 분해가능 유기탄소
+const TEXTILE_LANDFILL_DOCF = 0.77; // DOC 중 실제 분해되는 비율 (IPCC 기본값)
+// ──────────────────────────────────────────────────────────────────────────────
+
 /* ── CO₂ 그래프: 헬퍼 & 렌더 ── */
 
 function calcCo2(productionKg, weeks, freqPerWeek, moreWeeks) {
@@ -465,7 +494,11 @@ function renderCo2Graph() {
       <div class="co2-canvas-wrap">
         <canvas id="co2-chart"></canvas>
       </div>
-      <p class="co2-note">※ 임시 추정치 · 출처 미확정 (KEITI 에코스퀘어 교체 예정)</p>
+      <p class="co2-note">${
+        state.item === 'umbrella'
+          ? '※ 원단(PET 패브릭 180g) 기준 · 프레임·살 미포함 / 출처: CSES SVMR 제2호(2022)'
+          : '※ 생산단계(원단+봉제) 기준 · 세탁·폐기 제외 / 출처: Levi\'s LCA(2015)'
+      }</p>
     </div>
   `;
 }
