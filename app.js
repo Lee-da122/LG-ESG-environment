@@ -297,7 +297,6 @@ function selectCondition(idx) {
 /* ── 결과: 공통 레이아웃 헬퍼 ── */
 
 function resultLayout(badge, verdictText, bodyHtml, footerNote) {
-  const note = footerNote || '※ 지역마다 분리수거 규정이 다를 수 있습니다. OO구 기준 · 확인일 미정';
   return `
     <div class="screen">
       ${renderBackButton()}
@@ -308,7 +307,7 @@ function resultLayout(badge, verdictText, bodyHtml, footerNote) {
       <div class="result-body">
         ${bodyHtml}
       </div>
-      <p class="footer-note">${note}</p>
+      ${footerNote ? `<p class="footer-note">${footerNote}</p>` : ''}
       <button class="btn-primary" onclick="resetAndGoHome()">처음으로</button>
       ${logoFooter()}
     </div>
@@ -845,7 +844,7 @@ function renderRecycleHub() {
     : '수리하거나 기부할 수 있다면 자원을 더 오래 쓸 수 있어요.';
   const footerNote   = isClothing
     ? '※ 지자체·수거함·업체마다 수거 품목이 다를 수 있으니 현장 안내문을 확인하세요.'
-    : '※ 지역마다 분리수거 규정이 다를 수 있습니다. OO구 기준 · 확인일 미정';
+    : null;
 
   if (isClothing) {
     return resultLayout(
@@ -861,8 +860,12 @@ function renderRecycleHub() {
     );
   }
 
-  const menuCards = d.sections.map((sec) => `
-    <button class="menu-card" onclick="showDetail('${sec.key}')">
+  const menuCards = d.sections.map((sec) => {
+    const onclick = sec.key === 'disassemble'
+      ? `openRepairModal('녹슴·곰팡이')`
+      : `showDetail('${sec.key}')`;
+    return `
+    <button class="menu-card" onclick="${onclick}">
       <span class="menu-icon">${sec.icon}</span>
       <div class="menu-text">
         <span class="menu-title">${sec.title}</span>
@@ -870,7 +873,8 @@ function renderRecycleHub() {
       </div>
       <span class="menu-arrow">›</span>
     </button>
-  `).join('');
+    `;
+  }).join('');
 
   return resultLayout(
     ROUTE_LABELS.recycle,
@@ -887,29 +891,6 @@ function renderRecycleHub() {
 }
 
 /* ── 결과: recycle 세부 화면 (우산) ── */
-
-function renderUmbrellaDisassemble() {
-  const d = DISPOSAL.umbrella;
-  const stepsHtml = d.steps.map((s, i) => `
-    <li class="step-item">
-      <span class="step-num">${i + 1}</span>
-      <span class="step-text"><strong>${s.text}</strong> — ${s.detail}</span>
-    </li>
-  `).join('');
-
-  return detailLayout('분해하기', `
-    <button class="btn-guide" onclick="openRepairModal('녹슴·곰팡이')">해체 분리수거 카드뉴스 보기</button>
-    <div class="content-section">
-      <h2 class="section-title">분해 5단계</h2>
-      <ol class="step-list">${stepsHtml}</ol>
-    </div>
-    <div class="info-box safety-box">
-      <p class="info-box-title">⚠ 안전 주의</p>
-      <p class="info-box-text">일부 우산 살대에는 유리섬유가 포함되어 있어 손에 박힐 수 있습니다. 목장갑을 끼고 가위를 사용하세요.</p>
-    </div>
-    <button class="btn-next" onclick="showDetail('bins')">다음: 어디에 버릴까 →</button>
-  `);
-}
 
 function renderUmbrellaBins() {
   const d = DISPOSAL.umbrella;
@@ -1012,10 +993,7 @@ function initMapIfPresent() {
 
 function renderRecycleDetail(key) {
   if (state.item === 'umbrella') {
-    switch (key) {
-      case 'disassemble': return renderUmbrellaDisassemble();
-      case 'bins':        return renderUmbrellaBins();
-    }
+    if (key === 'bins') return renderUmbrellaBins();
   }
   if (state.item === 'clothing') {
     if (key === 'waste') return renderClothingWaste();
