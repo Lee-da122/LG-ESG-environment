@@ -527,7 +527,7 @@ function initCo2Chart() {
     const pts = [];
     const step = Math.max(1, Math.floor((xMax - xMin) / 80));
     for (let x = xMin; x <= xMax; x += step) {
-      pts.push({ x, y: Math.round(productionKg * 1000 / x) });
+      pts.push({ x, y: productionKg * 1000 / x });
     }
     return pts;
   }
@@ -606,7 +606,7 @@ function initCo2Chart() {
         tooltip: {
           callbacks: {
             label: (ctx) =>
-              `${ctx.dataset.label}: ${ctx.parsed.y}g CO₂ (${ctx.parsed.x}회 사용)`,
+              `${ctx.dataset.label}: ${Math.round(ctx.parsed.y)}g CO₂ (${ctx.parsed.x}회 사용)`,
           },
         },
       },
