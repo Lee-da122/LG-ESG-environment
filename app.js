@@ -898,6 +898,7 @@ function renderUmbrellaDisassemble() {
   `).join('');
 
   return detailLayout('분해하기', `
+    <button class="btn-guide" onclick="openRepairModal('녹슴·곰팡이')">해체 분리수거 카드뉴스 보기</button>
     <div class="content-section">
       <h2 class="section-title">분해 5단계</h2>
       <ol class="step-list">${stepsHtml}</ol>
@@ -1039,6 +1040,8 @@ const REPAIR_GUIDE_MAP = {
     { id: '2탄', label: '2탄', count: 5 },
     { id: '3탄', label: '3탄', count: 7 },
   ]},
+  '살대·천·손잡이 파손': { key: 'sewing',      title: '바느질로 간단 수선하기', count: 8, folder: 'assets/umbrella-sewing-repair' },
+  '녹슴·곰팡이':         { key: 'disassembly', title: '우산 해체 분리수거',      count: 7, folder: 'assets/umbrella-disassembly-recycle' },
 };
 
 const _rm = { images: [], idx: 0, touchStartX: 0 };
@@ -1053,8 +1056,9 @@ function _rmGetImages(key, tabId) {
   }
   const guide = Object.values(REPAIR_GUIDE_MAP).find((g) => g.key === key);
   if (!guide || !guide.count) return [];
+  const folder = guide.folder || `assets/repair-guide/${key}`;
   return Array.from({ length: guide.count }, (_, i) =>
-    `assets/repair-guide/${key}/${i + 1}.jpg`
+    `${folder}/${i + 1}.jpg`
   );
 }
 
