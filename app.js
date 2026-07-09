@@ -1170,7 +1170,7 @@ function _rmRender() {
 
   track.innerHTML = _rm.images.map((src, i) => {
     const zone = (i === 1 && _rm.refVideoUrl)
-      ? `<div class="rm-video-zone" onclick="_rmVideoZoneClick()"></div>`
+      ? `<div class="rm-video-zone" onclick="_rmVideoZoneClick(event)"></div>`
       : '';
     return `<div class="carousel-slide"><div class="carousel-slide-img"><img src="${escHtml(src)}" alt="수선 가이드 ${i + 1}장" loading="lazy" draggable="false">${zone}</div></div>`;
   }).join('');
@@ -1205,20 +1205,54 @@ function switchZipperTab(tabId) {
   _rmLoad('zipper', tabId);
 }
 
-function _rmVideoZoneClick() {
+function _rmVideoZoneClick(e) {
   const popup = document.getElementById('rm-video-popup');
   if (!popup) return;
-  if (popup.classList.contains('open')) {
-    _rmCloseVideoPopup();
-    return;
-  }
+  if (popup.classList.contains('open')) { _rmCloseVideoPopup(); return; }
+
+  const wrap = document.getElementById('rm-carousel-wrap');
+  if (!wrap || !_rm.refVideoUrl) return;
+
+  // 탭/클릭 지점을 wrap 기준 좌표로 변환
+  const wrapRect = wrap.getBoundingClientRect();
+  const clickY = e.clientY - wrapRect.top;
+  const clickX = e.clientX - wrapRect.left;
+
+  // 팝업 크기 측정 (일시적으로 보이지 않게 표시)
   popup.innerHTML = `<a href="${escHtml(_rm.refVideoUrl)}" target="_blank" rel="noopener noreferrer" class="rm-video-popup-link">▶ 참고 영상 보러가기</a>`;
+  popup.classList.remove('arrow-up');
+  popup.style.visibility = 'hidden';
+  popup.style.top = '0';
+  popup.style.left = '0';
+  popup.style.bottom = 'auto';
+  popup.style.transform = 'none';
   popup.classList.add('open');
+
+  const pw = popup.offsetWidth;
+  const ph = popup.offsetHeight;
+  const OFFSET = 12;
+  const PAD    = 8;
+
+  // 수평: 탭 지점 중앙 정렬, wrap 안에 클램프
+  let left = clickX - pw / 2;
+  left = Math.max(PAD, Math.min(wrapRect.width - pw - PAD, left));
+
+  // 수직: 탭 지점 위에 기본 배치, 공간 부족 시 아래 배치
+  let top = clickY - ph - OFFSET;
+  if (top < PAD) {
+    top = clickY + OFFSET;
+    popup.classList.add('arrow-up');
+  }
+  top = Math.max(PAD, Math.min(wrapRect.height - ph - PAD, top));
+
+  popup.style.top  = top  + 'px';
+  popup.style.left = left + 'px';
+  popup.style.visibility = '';
 }
 
 function _rmCloseVideoPopup() {
   const popup = document.getElementById('rm-video-popup');
-  if (popup) popup.classList.remove('open');
+  if (popup) popup.classList.remove('open', 'arrow-up');
 }
 
 function _rmBindTouch() {
