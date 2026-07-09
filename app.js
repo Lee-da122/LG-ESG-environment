@@ -299,7 +299,7 @@ function renderClothingCategory() {
     <div class="screen">
       ${renderBackButton()}
       <h1 class="screen-title">의류 종류 선택</h1>
-      <p class="notice" style="margin-bottom:16px;font-size:14px;color:#52514e;">CO₂ 발자국 계산에 활용됩니다.</p>
+      <p class="notice" style="margin-bottom:16px;font-size:14px;color:#52514e;">아래 탄소 절감량 계산에만 사용돼요. 수선 방법에는 영향을 주지 않아요.</p>
       <div class="card-list">${cards}</div>
       ${logoFooter()}
     </div>
@@ -519,6 +519,12 @@ function renderCo2Graph() {
   return `
     <div class="content-section">
       <h2 class="section-title">수리할수록 줄어드는 탄소 발자국</h2>
+      ${(function() {
+        if (state.item !== 'clothing' || !state.clothingCategory) return '';
+        const cat = CLOTHING_CATEGORIES.find((c) => c.id === state.clothingCategory);
+        if (!cat) return '';
+        return `<p style="font-size:13px;color:#6b7280;margin:2px 0 12px;">선택하신 <strong>${escHtml(cat.label)}</strong> 기준으로 계산돼요</p>`;
+      })()}
       <div class="co2-sliders">
         <div class="co2-slider-row">
           <label>산 지 <strong id="co2-months-val">4</strong>주</label>
