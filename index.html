@@ -1115,6 +1115,68 @@
       user-select: none;
       -webkit-user-drag: none;
     }
+    .carousel-slide-img {
+      position: relative;
+      width: 100%;
+    }
+    .carousel-slide-img img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+    .rm-video-zone {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 30%;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .rm-video-popup {
+      display: none;
+      position: absolute;
+      bottom: calc(30% + 12px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: #fff;
+      border: 2px solid #6366f1;
+      border-radius: 12px;
+      padding: 9px 16px;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.18);
+      z-index: 10;
+      white-space: nowrap;
+    }
+    .rm-video-popup.open { display: block; }
+    .rm-video-popup::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 8px solid transparent;
+      border-top-color: #6366f1;
+      border-bottom: none;
+      margin-top: -1px;
+    }
+    .rm-video-popup-link {
+      color: #4f46e5;
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .rm-video-popup-link:hover { text-decoration: underline; }
+    @media (prefers-color-scheme: dark) {
+      .rm-video-popup { background: #1f2937; border-color: #818cf8; }
+      .rm-video-popup::after { border-top-color: #818cf8; }
+      .rm-video-popup-link { color: #a5b4fc; }
+    }
+    :root[data-theme="dark"] .rm-video-popup { background: #1f2937; border-color: #818cf8; }
+    :root[data-theme="dark"] .rm-video-popup::after { border-top-color: #818cf8; }
+    :root[data-theme="dark"] .rm-video-popup-link { color: #a5b4fc; }
+    :root[data-theme="light"] .rm-video-popup { background: #fff; border-color: #6366f1; }
+    :root[data-theme="light"] .rm-video-popup::after { border-top-color: #6366f1; }
+    :root[data-theme="light"] .rm-video-popup-link { color: #4f46e5; }
     .carousel-btn {
       position: absolute;
       top: 50%;
@@ -1210,6 +1272,7 @@
         </div>
         <button class="carousel-btn carousel-btn--prev" id="rm-prev" onclick="carouselPrev()" aria-label="이전">‹</button>
         <button class="carousel-btn carousel-btn--next" id="rm-next" onclick="carouselNext()" aria-label="다음">›</button>
+        <div id="rm-video-popup" class="rm-video-popup" role="tooltip"></div>
       </div>
       <div class="carousel-footer">
         <div class="carousel-dots" id="rm-dots"></div>

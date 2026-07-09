@@ -1071,19 +1071,22 @@ function renderRecycle() {
 /* ── 수선 가이드 모달 ── */
 
 const REPAIR_GUIDE_MAP = {
-  '단추 떨어짐':  { key: 'button', title: '단추 달기 가이드',    count: 7 },
-  '솔기 터짐':    { key: 'seam',   title: '솔기 수선 가이드',    count: 8 },
-  '기장·품 수선': { key: 'hem',    title: '기장·품 수선 가이드', count: 7 },
+  '단추 떨어짐':  { key: 'button', title: '단추 달기 가이드',    count: 7,
+    refVideoUrl: 'https://youtu.be/mQSxIOUVcGw?si=4EZ0LzAbUPKNhFiq' },
+  '솔기 터짐':    { key: 'seam',   title: '솔기 수선 가이드',    count: 8,
+    refVideoUrl: 'http://www.youtube.com/watch?v=xnGwMwmMvno' },
+  '기장·품 수선': { key: 'hem',    title: '기장·품 수선 가이드', count: 7,
+    refVideoUrl: 'https://youtu.be/2TqgGJUhlnY?si=j60Q_HpbXEcZ8N__' },
   '지퍼 고장':    { key: 'zipper', title: '지퍼 수리 가이드',    tabs: [
-    { id: '1탄', label: '1탄', count: 6 },
-    { id: '2탄', label: '2탄', count: 5 },
-    { id: '3탄', label: '3탄', count: 7 },
+    { id: '1탄', label: '1탄', count: 6, refVideoUrl: 'https://youtu.be/vXtr1SdeKmk?si=ArjyJvEFPhFmw2sK' },
+    { id: '2탄', label: '2탄', count: 5, refVideoUrl: 'https://youtu.be/vXtr1SdeKmk?si=ArjyJvEFPhFmw2sK' },
+    { id: '3탄', label: '3탄', count: 7, refVideoUrl: 'https://youtu.be/vXtr1SdeKmk?si=ArjyJvEFPhFmw2sK' },
   ]},
   '살대·천·손잡이 파손': { key: 'sewing',      title: '바느질로 간단 수선하기', count: 8, folder: 'assets/umbrella-sewing-repair' },
   '녹슴·곰팡이':         { key: 'disassembly', title: '우산 해체 분리수거',      count: 7, folder: 'assets/umbrella-disassembly-recycle' },
 };
 
-const _rm = { images: [], idx: 0, touchStartX: 0 };
+const _rm = { images: [], idx: 0, touchStartX: 0, refVideoUrl: null };
 
 function _rmGetImages(key, tabId) {
   if (key === 'zipper') {
@@ -1136,11 +1139,19 @@ function openRepairModal(condition) {
 function closeRepairModal() {
   document.getElementById('repair-modal').classList.remove('open');
   document.body.style.overflow = '';
+  _rmCloseVideoPopup();
 }
 
 function _rmLoad(key, tabId) {
   _rm.images = _rmGetImages(key, tabId);
   _rm.idx = 0;
+  if (key === 'zipper') {
+    const tab = REPAIR_GUIDE_MAP['지퍼 고장'].tabs.find((t) => t.id === tabId);
+    _rm.refVideoUrl = tab ? (tab.refVideoUrl || null) : null;
+  } else {
+    const guide = Object.values(REPAIR_GUIDE_MAP).find((g) => g.key === key);
+    _rm.refVideoUrl = guide ? (guide.refVideoUrl || null) : null;
+  }
   _rmRender();
 }
 
@@ -1155,9 +1166,14 @@ function _rmRender() {
   const total = _rm.images.length;
   const idx   = _rm.idx;
 
-  track.innerHTML = _rm.images.map((src, i) =>
-    `<div class="carousel-slide"><img src="${escHtml(src)}" alt="수선 가이드 ${i + 1}장" loading="lazy" draggable="false"></div>`
-  ).join('');
+  _rmCloseVideoPopup();
+
+  track.innerHTML = _rm.images.map((src, i) => {
+    const zone = (i === 1 && _rm.refVideoUrl)
+      ? `<div class="rm-video-zone" onclick="_rmVideoZoneClick()"></div>`
+      : '';
+    return `<div class="carousel-slide"><div class="carousel-slide-img"><img src="${escHtml(src)}" alt="수선 가이드 ${i + 1}장" loading="lazy" draggable="false">${zone}</div></div>`;
+  }).join('');
   track.style.transform = `translateX(-${idx * 100}%)`;
 
   dots.innerHTML = _rm.images.map((_, i) =>
@@ -1187,6 +1203,22 @@ function switchZipperTab(tabId) {
     el.setAttribute('aria-selected', active);
   });
   _rmLoad('zipper', tabId);
+}
+
+function _rmVideoZoneClick() {
+  const popup = document.getElementById('rm-video-popup');
+  if (!popup) return;
+  if (popup.classList.contains('open')) {
+    _rmCloseVideoPopup();
+    return;
+  }
+  popup.innerHTML = `<a href="${escHtml(_rm.refVideoUrl)}" target="_blank" rel="noopener noreferrer" class="rm-video-popup-link">▶ 참고 영상 보러가기</a>`;
+  popup.classList.add('open');
+}
+
+function _rmCloseVideoPopup() {
+  const popup = document.getElementById('rm-video-popup');
+  if (popup) popup.classList.remove('open');
 }
 
 function _rmBindTouch() {
