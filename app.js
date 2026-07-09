@@ -299,7 +299,7 @@ function renderClothingCategory() {
     <div class="screen">
       ${renderBackButton()}
       <h1 class="screen-title">의류 종류 선택</h1>
-      <p class="notice" style="margin-bottom:16px;font-size:14px;color:#52514e;">아래 탄소 절감량 계산에만 사용돼요. 수선 방법에는 영향을 주지 않아요.</p>
+      <p class="notice" style="margin-bottom:16px;font-size:14px;color:#52514e;">아래 탄소 절감량 계산에만 사용돼요.<br>수선 방법에는 영향을 주지 않아요.</p>
       <div class="card-list">${cards}</div>
       ${logoFooter()}
     </div>
